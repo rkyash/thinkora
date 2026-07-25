@@ -69,7 +69,9 @@ async def _verify_notebook_access(
     return notebook
 
 
-@router.post("/upload", response_model=ApiResponse[SourceResponse], status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/upload", response_model=ApiResponse[SourceResponse], status_code=status.HTTP_201_CREATED
+)
 async def upload_source(
     workspace_id: str,
     notebook_id: str,
@@ -91,7 +93,7 @@ async def upload_source(
     content = await file.read()
 
     # Store file
-    storage= get_storage()
+    storage = get_storage()
     file_path = f"{notebook.id}/{file.filename}"
     file_path = await storage.save(
         file_path,
@@ -126,10 +128,14 @@ async def upload_source(
     # Trigger ingestion process
     ingest_source_task.delay(str(source.id))
 
-    return ApiResponse[SourceResponse](data=source, success=True, message="Source created successfully")
+    return ApiResponse[SourceResponse](
+        data=source, success=True, message="Source created successfully"
+    )
 
 
-@router.post("/url", response_model=ApiResponse[SourceResponse], status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/url", response_model=ApiResponse[SourceResponse], status_code=status.HTTP_201_CREATED
+)
 async def create_url_source(
     workspace_id: str,
     notebook_id: str,
@@ -154,7 +160,9 @@ async def create_url_source(
     # Trigger ingestion process
     ingest_source_task.delay(str(source.id))
 
-    return ApiResponse[SourceResponse](data=source, success=True, message="Source created successfully")
+    return ApiResponse[SourceResponse](
+        data=source, success=True, message="Source created successfully"
+    )
 
 
 @router.post(
@@ -184,10 +192,14 @@ async def create_youtube_source(
     # Trigger ingestion process
     ingest_source_task.delay(str(source.id))
 
-    return ApiResponse[SourceResponse](data=source, success=True, message="Source created successfully")
+    return ApiResponse[SourceResponse](
+        data=source, success=True, message="Source created successfully"
+    )
 
 
-@router.post("/text", response_model=ApiResponse[SourceResponse], status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/text", response_model=ApiResponse[SourceResponse], status_code=status.HTTP_201_CREATED
+)
 async def create_text_source(
     workspace_id: str,
     notebook_id: str,
@@ -222,7 +234,9 @@ async def create_text_source(
     # Trigger ingestion process
     ingest_source_task.delay(str(source.id))
 
-    return ApiResponse[SourceResponse](data=source, success=True, message="Source created successfully")
+    return ApiResponse[SourceResponse](
+        data=source, success=True, message="Source created successfully"
+    )
 
 
 @router.get("/", response_model=PaginatedResponse[SourceListResponse])
@@ -265,7 +279,9 @@ async def get_source(
     if str(source.notebook_id) != str(notebook.id):
         raise NotFoundError("Source not found in this notebook")
 
-    return ApiResponse[SourceResponse](data=source, success=True, message="Source retrieved successfully")
+    return ApiResponse[SourceResponse](
+        data=source, success=True, message="Source retrieved successfully"
+    )
 
 
 @router.delete("/{source_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -112,7 +112,7 @@ class AudioParser(BaseParser):
                 filename=filename,
                 duration=info.duration,
                 language=info.language,
-                probability=round(getattr(info, 'language_probability', 0), 2),
+                probability=round(getattr(info, "language_probability", 0), 2),
                 text_length=len(transcript),
             )
 
@@ -132,7 +132,7 @@ class AudioParser(BaseParser):
         finally:
             # Clean up temporary file
             try:
-                if 'tmp_file_path' in locals():
+                if "tmp_file_path" in locals():
                     Path(tmp_file_path).unlink(missing_ok=True)
             except Exception:
                 pass  # Ignore cleanup errors

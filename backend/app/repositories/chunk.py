@@ -10,9 +10,7 @@ from app.repositories.base import GenericRepo
 class ChunkRepo(GenericRepo[DocumentChunk]):
     model = DocumentChunk
 
-    async def list_by_source(
-        self, db: AsyncSession, source_id: str
-    ) -> list[DocumentChunk]:
+    async def list_by_source(self, db: AsyncSession, source_id: str) -> list[DocumentChunk]:
         """Get all chunks for a source, ordered by index."""
         result = await db.execute(
             select(DocumentChunk)
@@ -23,9 +21,7 @@ class ChunkRepo(GenericRepo[DocumentChunk]):
 
     async def delete_by_source(self, db: AsyncSession, source_id: str) -> int:
         """Delete all chunks for a source. Returns count deleted."""
-        result = await db.execute(
-            delete(DocumentChunk).where(DocumentChunk.source_id == source_id)
-        )
+        result = await db.execute(delete(DocumentChunk).where(DocumentChunk.source_id == source_id))
         await db.flush()
         return result.rowcount  # type: ignore[return-value]
 

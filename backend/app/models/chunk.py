@@ -22,9 +22,7 @@ class DocumentChunk(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
     token_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    qdrant_point_id: Mapped[str | None] = mapped_column(
-        PG_UUID(as_uuid=False), nullable=True
-    )
+    qdrant_point_id: Mapped[str | None] = mapped_column(PG_UUID(as_uuid=False), nullable=True)
 
     # Relationships
     source: Mapped["Source"] = relationship(back_populates="chunks")  # noqa: F821

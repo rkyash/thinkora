@@ -45,6 +45,7 @@ class BaseTask(celery.Task):
         """Log when a task begins execution and hydrate latest DB settings."""
         try:
             from app.services.settings import hydrate_settings_from_db_sync
+
             hydrate_settings_from_db_sync()
         except Exception as exc:
             logger.warning("task_before_start_settings_hydration_failed", error=str(exc))

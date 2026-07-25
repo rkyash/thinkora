@@ -46,11 +46,14 @@ async def create_workspace(
     current_user: User = Depends(get_current_user),
 ):
     """Create a new workspace."""
-    workspace = await workspace_repo.create(db, {
-        "owner_id": current_user.id,
-        "name": data.name,
-        "description": data.description,
-    })
+    workspace = await workspace_repo.create(
+        db,
+        {
+            "owner_id": current_user.id,
+            "name": data.name,
+            "description": data.description,
+        },
+    )
     return {
         "success": True,
         "data": WorkspaceResponse.model_validate(workspace),

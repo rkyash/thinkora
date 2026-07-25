@@ -80,9 +80,7 @@ class SearchService:
         semantic_task = asyncio.create_task(
             self._semantic_search(query, notebook_id, semantic_top_k)
         )
-        fts_task = asyncio.create_task(
-            self._full_text_search(query, notebook_id, fts_top_k)
-        )
+        fts_task = asyncio.create_task(self._full_text_search(query, notebook_id, fts_top_k))
 
         semantic_results, fts_results = await asyncio.gather(
             semantic_task, fts_task, return_exceptions=True
@@ -107,7 +105,7 @@ class SearchService:
 
         # Apply pagination
         total = len(enriched)
-        page_items = enriched[offset: offset + limit]
+        page_items = enriched[offset : offset + limit]
 
         return {
             "query": query,
@@ -184,6 +182,7 @@ class SearchService:
         chunk_map_by_qdrant: dict[str, DocumentChunk] = {}
         if qdrant_ids:
             from app.repositories.chunk import ChunkRepo
+
             cr = ChunkRepo()
             chunks = await cr.get_by_qdrant_ids(self._db, qdrant_ids)
             chunk_map_by_qdrant = {str(c.qdrant_point_id): c for c in chunks}

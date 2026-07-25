@@ -23,21 +23,28 @@ def ensure_infrastructure(
         return True
 
     if not state.docker_installed:
-        logger.error("bootstrap_docker_missing", msg=(
-            "Docker is not installed. Please install Docker: https://docs.docker.com/get-docker/"
-        ))
+        logger.error(
+            "bootstrap_docker_missing",
+            msg=(
+                "Docker is not installed. Please install Docker: https://docs.docker.com/get-docker/"
+            ),
+        )
         return False
 
     if not state.docker_running:
-        logger.error("bootstrap_docker_stopped", msg=(
-            "Docker daemon is not running. Please start Docker Desktop or the Docker service."
-        ))
+        logger.error(
+            "bootstrap_docker_stopped",
+            msg=(
+                "Docker daemon is not running. Please start Docker Desktop or the Docker service."
+            ),
+        )
         return False
 
     if state.compose_command is None:
-        logger.error("bootstrap_compose_missing", msg=(
-            "Docker Compose not found. Install it: https://docs.docker.com/compose/install/"
-        ))
+        logger.error(
+            "bootstrap_compose_missing",
+            msg=("Docker Compose not found. Install it: https://docs.docker.com/compose/install/"),
+        )
         return False
 
     compose_cmd = state.compose_command
@@ -51,7 +58,10 @@ def ensure_infrastructure(
     # Start services
     logger.info("bootstrap_starting_infra", msg="Starting infrastructure services...")
     success = _run_compose(
-        compose_cmd, compose_file, project_name, project_root,
+        compose_cmd,
+        compose_file,
+        project_name,
+        project_root,
         ["up", "-d", "--wait"],
         timeout=timeout,
     )

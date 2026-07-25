@@ -13,5 +13,6 @@ async def main():
         rows = result.fetchall()
         print(f"Notebooks: {rows}")
 
+
 if __name__ == "__main__":
     asyncio.run(main())

@@ -15,14 +15,16 @@ from app.core.constants import Difficulty
 
 class FlashcardGenerateRequest(BaseModel):
     """Request body for AI flashcard generation."""
-    count: int = 10               # how many cards to generate
+
+    count: int = 10  # how many cards to generate
     difficulty: Difficulty | None = None  # filter by difficulty
-    topic: str | None = None      # optional topic focus
-    model: str | None = None      # override default LLM
+    topic: str | None = None  # optional topic focus
+    model: str | None = None  # override default LLM
 
 
 class FlashcardCreate(BaseModel):
     """Manually create a flashcard."""
+
     question: str
     answer: str
     difficulty: Difficulty = Difficulty.MEDIUM
@@ -33,6 +35,7 @@ class FlashcardCreate(BaseModel):
 
 class FlashcardResponse(BaseModel):
     """Single flashcard response."""
+
     id: str
     notebook_id: str
     question: str
@@ -45,5 +48,6 @@ class FlashcardResponse(BaseModel):
 
 class FlashcardGenerateResponse(BaseModel):
     """Response after dispatching flashcard generation task."""
+
     task_id: str
     message: str = "Flashcard generation started"

@@ -29,6 +29,7 @@ TOKEN_BLACKLIST_PREFIX = "blacklist:"
 
 # ─── Password Hashing ────────────────────────────────────────────
 
+
 def _pre_hash(password: str) -> bytes:
     """Pre-hash password with SHA-256 to work around bcrypt's 72-byte limit.
 
@@ -111,18 +112,24 @@ async def register_user(db: AsyncSession, data: UserCreate) -> tuple[dict, Token
         raise ConflictError("Username already taken")
 
     # Create user
-    user = await user_repo.create(db, {
-        "email": data.email,
-        "username": data.username,
-        "hashed_password": hash_password(data.password),
-    })
+    user = await user_repo.create(
+        db,
+        {
+            "email": data.email,
+            "username": data.username,
+            "hashed_password": hash_password(data.password),
+        },
+    )
 
     # Create default workspace
-    await workspace_repo.create(db, {
-        "owner_id": user.id,
-        "name": "My Workspace",
-        "description": "Default workspace for notes and notebooks.",
-    })
+    await workspace_repo.create(
+        db,
+        {
+            "owner_id": user.id,
+            "name": "My Workspace",
+            "description": "Default workspace for notes and notebooks.",
+        },
+    )
 
     logger.info("user_registered", user_id=user.id, email=user.email)
 
@@ -186,6 +193,7 @@ async def refresh_tokens(refresh_token: str) -> TokenResponse:
         access_token=create_access_token(user_id),
         refresh_token=create_refresh_token(user_id),
     )
+
 
 async def update_password_by_email(db: AsyncSession, email: str, new_password: str) -> None:
     """Update the user's password."""

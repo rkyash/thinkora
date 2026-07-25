@@ -228,10 +228,7 @@ def get_storage() -> StorageBackend:
             "Set STORAGE_BACKEND=local in your .env file."
         )
     else:
-        raise ValueError(
-            f"Unknown STORAGE_BACKEND: '{backend}'. "
-            f"Supported values: 'local', 's3'."
-        )
+        raise ValueError(f"Unknown STORAGE_BACKEND: '{backend}'. Supported values: 'local', 's3'.")
 
     return _backend_instance
 

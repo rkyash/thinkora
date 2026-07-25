@@ -87,17 +87,24 @@ async def create_chat_session(
     notebook = await _verify_notebook_access(str(notebook_id), db, current_user)
     title = (payload.title if payload else None) or "New Chat"
     try:
-        session = await session_repo.create(
-            db, {"notebook_id": str(notebook_id), "title": title}
+        session = await session_repo.create(db, {"notebook_id": str(notebook_id), "title": title})
+        return ApiResponse(
+            success=True,
+            data=ChatSessionResponse.model_validate(session),
+            message="Chat session created",
         )
-        return ApiResponse(success=True, data=ChatSessionResponse.model_validate(session), message="Chat session created")
 
     except Exception as e:
         # raise HTTPException(
         #     status_code=status.HTTP_400_BAD_REQUEST,
         #     detail=f"Failed to create chat session: {str(e)}",
         # )
-        raise ApiError(success=False, error=f"Failed to create chat session: {str(e)}", code="chat_session_creation_failed")
+        raise ApiError(
+            success=False,
+            error=f"Failed to create chat session: {str(e)}",
+            code="chat_session_creation_failed",
+        )
+
 
 @router.get(
     "/chat/sessions/{session_id}/messages",
@@ -168,7 +175,7 @@ async def stream_ask(
             "session_id": session_id,
             "role": "user",
             "content": question,
-        }
+        },
     )
 
     # Get bounded history — last 20 messages, excluding the user message we just saved

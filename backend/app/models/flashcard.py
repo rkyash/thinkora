@@ -23,9 +23,7 @@ class Flashcard(Base):
     difficulty: Mapped[Difficulty] = mapped_column(
         Enum(Difficulty, name="difficulty"), default=Difficulty.MEDIUM
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     notebook: Mapped["Notebook"] = relationship(back_populates="flashcards")  # noqa: F821

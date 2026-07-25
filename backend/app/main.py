@@ -90,6 +90,7 @@ def create_app() -> FastAPI:
     async def health_check() -> dict[str, str]:
         """Liveness probe — returns 200 if the process is alive."""
         from datetime import datetime, timezone
+
         return {
             "status": "ok",
             "service": APP_NAME,
@@ -115,6 +116,7 @@ def create_app() -> FastAPI:
             from sqlalchemy import text as sa_text
 
             from app.database import async_session_factory
+
             async with async_session_factory() as session:
                 await session.execute(sa_text("SELECT 1"))
             deps["postgres"] = "ok"
@@ -126,6 +128,7 @@ def create_app() -> FastAPI:
             import redis.asyncio as aioredis
 
             from app.config import settings
+
             r = aioredis.from_url(settings.REDIS_URL, socket_connect_timeout=2)
             await r.ping()
             await r.aclose()
@@ -138,6 +141,7 @@ def create_app() -> FastAPI:
             from qdrant_client import AsyncQdrantClient
 
             from app.config import settings
+
             qdrant_url = f"http://{settings.QDRANT_HOST}:{settings.QDRANT_PORT}"
             qc = AsyncQdrantClient(url=qdrant_url, timeout=3)
             await qc.get_collections()
@@ -155,6 +159,7 @@ def create_app() -> FastAPI:
 
     # ─── Mount API routers ────────────────────────────────────────
     from app.api.router import api_router
+
     application.include_router(api_router, prefix=API_V1_PREFIX)
 
     return application

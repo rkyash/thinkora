@@ -49,9 +49,7 @@ class EpubParser(BaseParser):
             )
         except Exception as exc:
             logger.error("epub_read_failed", filename=filename, error=str(exc))
-            raise ValidationError(
-                f"Failed to read EPUB file '{filename}': {exc}"
-            ) from exc
+            raise ValidationError(f"Failed to read EPUB file '{filename}': {exc}") from exc
 
         chapters: list[str] = []
         chapter_index = 0
@@ -80,9 +78,7 @@ class EpubParser(BaseParser):
 
         if not chapters:
             logger.warning("epub_no_content", filename=filename)
-            raise ValidationError(
-                f"EPUB file '{filename}' contains no extractable text content."
-            )
+            raise ValidationError(f"EPUB file '{filename}' contains no extractable text content.")
 
         result = "\n\n---\n\n".join(chapters)
         logger.info(

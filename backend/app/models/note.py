@@ -22,9 +22,7 @@ class Note(Base):
     content: Mapped[str | None] = mapped_column(Text, nullable=True)  # TipTap JSON doc
     # [{note_id, title}]
     backlinks: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

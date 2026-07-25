@@ -107,6 +107,7 @@ async def clear_setting(
 ) -> ApiResponse[None]:
     """Clear/reset a setting to its environment variable default."""
     from app.repositories.app_settings import app_settings_repo
+
     deleted = await app_settings_repo.delete(db, key)
     msg = f"Setting '{key}' cleared" if deleted else f"Setting '{key}' was not set"
     return ok(None, msg)
@@ -130,6 +131,7 @@ async def test_provider(
         ProviderTestResponse(**result),
         "Test complete",
     )
+
 
 @router.get(
     "/settings/models/{provider_id}",

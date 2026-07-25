@@ -144,9 +144,7 @@ class SettingsService:
         Values are resolved: DB override takes precedence over env variable.
         """
         all_keys = list(SettingKey)
-        db_values = await app_settings_repo.get_many(
-            self._db, [k.value for k in all_keys]
-        )
+        db_values = await app_settings_repo.get_many(self._db, [k.value for k in all_keys])
 
         setting_items: list[SettingResponse] = []
         for key in all_keys:
@@ -157,11 +155,13 @@ class SettingsService:
                 raw_value = getattr(env_settings, _ENV_FALLBACKS[key.value], None) or None
 
             masked = mask_value(key.value, raw_value)
-            setting_items.append(SettingResponse(
-                key=key.value,
-                value=masked,
-                is_secret=is_secret(key.value),
-            ))
+            setting_items.append(
+                SettingResponse(
+                    key=key.value,
+                    value=masked,
+                    is_secret=is_secret(key.value),
+                )
+            )
 
         # Build provider infos with is_configured derived from key presence
         providers = await self._build_provider_infos(db_values)
@@ -222,7 +222,12 @@ class SettingsService:
         """
         provider = next((p for p in _PROVIDERS if p["id"] == provider_id), None)
         if not provider:
-            return {"provider_id": provider_id, "success": False, "message": "Unknown provider", "model_count": None}
+            return {
+                "provider_id": provider_id,
+                "success": False,
+                "message": "Unknown provider",
+                "model_count": None,
+            }
 
         # Get the key value (plaintext — internal use only)
         key_setting = provider.get("key_setting")
@@ -257,9 +262,7 @@ class SettingsService:
                 }
 
         try:
-            result = await asyncio.to_thread(
-                _probe_provider, provider_id, api_key
-            )
+            result = await asyncio.to_thread(_probe_provider, provider_id, api_key)
             return {"provider_id": provider_id, **result}
         except Exception as exc:
             log.warning("provider_test_failed", provider=provider_id, error=str(exc))
@@ -273,24 +276,27 @@ class SettingsService:
     async def fetch_provider_models(self, provider_id: str) -> list[str]:
         """Fetch available models from the provider's API."""
         import httpx
+
         provider = next((p for p in _PROVIDERS if p["id"] == provider_id), None)
         if not provider:
             raise ValueError("Unknown provider")
-        
+
         base_url_setting = provider.get("base_url_setting")
         if not base_url_setting:
-            raise ValueError("Provider does not support fetching models or base URL is not configured")
-        
+            raise ValueError(
+                "Provider does not support fetching models or base URL is not configured"
+            )
+
         base_url = await self.get_value(base_url_setting)
         if not base_url:
             raise ValueError("Base URL is not configured")
-        
+
         headers = {}
         if provider.get("key_setting"):
             api_key = await self.get_value(provider["key_setting"])
             if api_key:
                 headers["Authorization"] = f"Bearer {api_key}"
-        
+
         base_url = base_url.rstrip("/")
         if provider_id == "ollama":
             url = f"{base_url}/api/tags"
@@ -301,7 +307,7 @@ class SettingsService:
             resp = await client.get(url, headers=headers, timeout=10.0)
             resp.raise_for_status()
             data = resp.json()
-            
+
             if provider_id == "ollama":
                 return [m["name"] for m in data.get("models", [])]
             else:
@@ -309,9 +315,7 @@ class SettingsService:
 
     # ─── Internal ─────────────────────────────────────────────────────────────
 
-    async def _build_provider_infos(
-        self, db_values: dict[str, str | None]
-    ) -> list[ProviderInfo]:
+    async def _build_provider_infos(self, db_values: dict[str, str | None]) -> list[ProviderInfo]:
         """Build ProviderInfo list with is_configured and selected_model resolved."""
         infos: list[ProviderInfo] = []
         for p in _PROVIDERS:
@@ -333,7 +337,7 @@ class SettingsService:
             selected_model: str | None = None
             if model_setting:
                 selected_model = db_values.get(model_setting) or None
-                
+
             base_url_setting = p.get("base_url_setting")
             selected_base_url: str | None = None
             if base_url_setting:
@@ -342,23 +346,26 @@ class SettingsService:
                     val = getattr(env_settings, _ENV_FALLBACKS[base_url_setting], None) or None
                 selected_base_url = val
 
-            infos.append(ProviderInfo(
-                id=p["id"],
-                name=p["name"],
-                description=p["description"],
-                key_setting=key_setting,
-                model_setting=model_setting,
-                base_url_setting=base_url_setting,
-                selected_base_url=selected_base_url,
-                supports_fetch_models=p.get("supports_fetch_models", False),
-                requires_key=p["requires_key"],
-                is_configured=is_configured,
-                selected_model=selected_model,
-            ))
+            infos.append(
+                ProviderInfo(
+                    id=p["id"],
+                    name=p["name"],
+                    description=p["description"],
+                    key_setting=key_setting,
+                    model_setting=model_setting,
+                    base_url_setting=base_url_setting,
+                    selected_base_url=selected_base_url,
+                    supports_fetch_models=p.get("supports_fetch_models", False),
+                    requires_key=p["requires_key"],
+                    is_configured=is_configured,
+                    selected_model=selected_model,
+                )
+            )
         return infos
 
 
 # ─── Provider probe (sync — runs in threadpool) ───────────────────────────────
+
 
 def _probe_provider(provider_id: str, api_key: str | None) -> dict[str, Any]:
     """
@@ -380,7 +387,11 @@ def _probe_provider(provider_id: str, api_key: str | None) -> dict[str, Any]:
 
     model = probe_models.get(provider_id)
     if not model:
-        return {"success": False, "message": "No probe model configured for this provider.", "model_count": None}
+        return {
+            "success": False,
+            "message": "No probe model configured for this provider.",
+            "model_count": None,
+        }
 
     try:
         kwargs: dict[str, Any] = {
@@ -392,7 +403,11 @@ def _probe_provider(provider_id: str, api_key: str | None) -> dict[str, Any]:
             kwargs["api_key"] = api_key
 
         litellm.completion(**kwargs)
-        return {"success": True, "message": f"Connected to {provider_id} successfully.", "model_count": None}
+        return {
+            "success": True,
+            "message": f"Connected to {provider_id} successfully.",
+            "model_count": None,
+        }
     except Exception as exc:
         return {"success": False, "message": str(exc)[:300], "model_count": None}
 
@@ -451,4 +466,3 @@ def hydrate_settings_from_db_sync() -> None:
     except RuntimeError:
         pass
     asyncio.run(hydrate_settings_from_db())
-

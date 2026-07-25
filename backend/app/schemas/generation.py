@@ -16,7 +16,8 @@ from app.core.constants import GenerationType, TaskStatus
 
 class GenerationRequest(BaseModel):
     """Request body for content generation tasks."""
-    model: str | None = None    # override default LLM
+
+    model: str | None = None  # override default LLM
     max_tokens: int | None = None
 
 
@@ -25,6 +26,7 @@ class GenerationRequest(BaseModel):
 
 class GenerationResponse(BaseModel):
     """Single generation record."""
+
     id: str
     notebook_id: str
     type: GenerationType

@@ -23,6 +23,7 @@ from app.services.notification import ProgressEvent
 
 # ─── Test app setup ───────────────────────────────────────────────
 
+
 def _create_test_app(mock_user=None):
     """Create a minimal FastAPI app with the events router."""
     app = FastAPI()
@@ -31,6 +32,7 @@ def _create_test_app(mock_user=None):
     if mock_user:
         # Override the auth dependency to return our mock user
         from app.core.dependencies import get_current_user
+
         app.dependency_overrides[get_current_user] = lambda: mock_user
 
     return app
@@ -86,10 +88,7 @@ class TestStreamEvents:
 
         # Parse the SSE lines from the response body
         body = response.text
-        data_lines = [
-            line for line in body.strip().split("\n")
-            if line.startswith("data: ")
-        ]
+        data_lines = [line for line in body.strip().split("\n") if line.startswith("data: ")]
         assert len(data_lines) == 2
 
         first = json.loads(data_lines[0].removeprefix("data: "))

@@ -62,9 +62,7 @@ class UrlParser(BaseParser):
             validated_url = validate_url_ssrf(url)
         except Exception as exc:
             logger.warning("url_ssrf_blocked", url=url, error=str(exc))
-            raise ValidationError(
-                f"URL blocked by security policy: {url}"
-            ) from exc
+            raise ValidationError(f"URL blocked by security policy: {url}") from exc
 
         # ── Fetch page ────────────────────────────────────────────
         try:
@@ -77,9 +75,7 @@ class UrlParser(BaseParser):
                 response.raise_for_status()
         except httpx.TimeoutException as exc:
             logger.error("url_fetch_timeout", url=validated_url)
-            raise ValidationError(
-                f"Timed out fetching URL: {validated_url}"
-            ) from exc
+            raise ValidationError(f"Timed out fetching URL: {validated_url}") from exc
         except httpx.HTTPStatusError as exc:
             logger.error(
                 "url_fetch_http_error",
@@ -91,9 +87,7 @@ class UrlParser(BaseParser):
             ) from exc
         except httpx.HTTPError as exc:
             logger.error("url_fetch_failed", url=validated_url, error=str(exc))
-            raise ValidationError(
-                f"Failed to fetch URL: {validated_url}"
-            ) from exc
+            raise ValidationError(f"Failed to fetch URL: {validated_url}") from exc
 
         # ── Size check ────────────────────────────────────────────
         content_length = len(response.content)
@@ -119,21 +113,15 @@ class UrlParser(BaseParser):
             title = doc.title() or ""
             article_html = doc.summary()
         except Exception as exc:
-            logger.error(
-                "url_readability_failed", url=validated_url, error=str(exc)
-            )
-            raise ValidationError(
-                f"Failed to extract article from URL: {validated_url}"
-            ) from exc
+            logger.error("url_readability_failed", url=validated_url, error=str(exc))
+            raise ValidationError(f"Failed to extract article from URL: {validated_url}") from exc
 
         # ── Strip HTML with BeautifulSoup ─────────────────────────
         soup = BeautifulSoup(article_html, "html.parser")
         article_text = soup.get_text(separator="\n", strip=True)
 
         if not article_text.strip():
-            raise ValidationError(
-                f"No readable content found at URL: {validated_url}"
-            )
+            raise ValidationError(f"No readable content found at URL: {validated_url}")
 
         # Prepend title if available.
         parts: list[str] = []

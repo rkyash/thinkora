@@ -26,21 +26,13 @@ from app.services.parsers import BaseParser
 # Regex patterns for YouTube video ID extraction.
 _YOUTUBE_PATTERNS: list[re.Pattern[str]] = [
     # https://www.youtube.com/watch?v=VIDEO_ID
-    re.compile(
-        r"(?:https?://)?(?:www\.)?youtube\.com/watch\?.*v=(?P<id>[a-zA-Z0-9_-]{11})"
-    ),
+    re.compile(r"(?:https?://)?(?:www\.)?youtube\.com/watch\?.*v=(?P<id>[a-zA-Z0-9_-]{11})"),
     # https://youtu.be/VIDEO_ID
-    re.compile(
-        r"(?:https?://)?youtu\.be/(?P<id>[a-zA-Z0-9_-]{11})"
-    ),
+    re.compile(r"(?:https?://)?youtu\.be/(?P<id>[a-zA-Z0-9_-]{11})"),
     # https://www.youtube.com/embed/VIDEO_ID
-    re.compile(
-        r"(?:https?://)?(?:www\.)?youtube\.com/embed/(?P<id>[a-zA-Z0-9_-]{11})"
-    ),
+    re.compile(r"(?:https?://)?(?:www\.)?youtube\.com/embed/(?P<id>[a-zA-Z0-9_-]{11})"),
     # https://www.youtube.com/v/VIDEO_ID
-    re.compile(
-        r"(?:https?://)?(?:www\.)?youtube\.com/v/(?P<id>[a-zA-Z0-9_-]{11})"
-    ),
+    re.compile(r"(?:https?://)?(?:www\.)?youtube\.com/v/(?P<id>[a-zA-Z0-9_-]{11})"),
 ]
 
 # Maximum retries for transcript fetch with youtube_transcript_api.
@@ -76,9 +68,7 @@ def _extract_video_id(url: str) -> str:
     if video_ids and len(video_ids[0]) == 11:
         return video_ids[0]
 
-    raise ValidationError(
-        f"Could not extract YouTube video ID from URL: {url}"
-    )
+    raise ValidationError(f"Could not extract YouTube video ID from URL: {url}")
 
 
 def _format_timestamp(seconds: float) -> str:
@@ -156,9 +146,7 @@ class YoutubeParser(BaseParser):
                 lines.append(f"[{timestamp}] {text}")
 
         if not lines:
-            raise ValidationError(
-                f"Transcript for video '{video_id}' contains no text."
-            )
+            raise ValidationError(f"Transcript for video '{video_id}' contains no text.")
 
         result = "\n".join(lines)
         logger.info(
@@ -195,8 +183,10 @@ class YoutubeParser(BaseParser):
             "--skip-download",
             "--write-subs",
             "--write-auto-subs",
-            "--sub-langs", "en.*,en",
-            "--sub-format", "json3",
+            "--sub-langs",
+            "en.*,en",
+            "--sub-format",
+            "json3",
             "--dump-json",
             url,
         ]
@@ -289,9 +279,12 @@ class YoutubeParser(BaseParser):
                 "--skip-download",
                 "--write-subs",
                 "--write-auto-subs",
-                "--sub-langs", "en.*,en",
-                "--sub-format", "json3",
-                "-o", output_template,
+                "--sub-langs",
+                "en.*,en",
+                "--sub-format",
+                "json3",
+                "-o",
+                output_template,
                 url,
             ]
 
@@ -360,11 +353,13 @@ class YoutubeParser(BaseParser):
             text = "".join(text_parts).strip()
 
             if text and text != "\n":
-                segments.append({
-                    "start": start_ms / 1000.0,
-                    "duration": duration_ms / 1000.0,
-                    "text": text,
-                })
+                segments.append(
+                    {
+                        "start": start_ms / 1000.0,
+                        "duration": duration_ms / 1000.0,
+                        "text": text,
+                    }
+                )
 
         return segments
 
@@ -384,10 +379,20 @@ class YoutubeParser(BaseParser):
         while i < len(lines):
             match = timestamp_pattern.match(lines[i])
             if match:
-                h, m, s, ms = int(match.group(1)), int(match.group(2)), int(match.group(3)), int(match.group(4))
+                h, m, s, ms = (
+                    int(match.group(1)),
+                    int(match.group(2)),
+                    int(match.group(3)),
+                    int(match.group(4)),
+                )
                 start = h * 3600 + m * 60 + s + ms / 1000.0
 
-                h2, m2, s2, ms2 = int(match.group(5)), int(match.group(6)), int(match.group(7)), int(match.group(8))
+                h2, m2, s2, ms2 = (
+                    int(match.group(5)),
+                    int(match.group(6)),
+                    int(match.group(7)),
+                    int(match.group(8)),
+                )
                 end = h2 * 3600 + m2 * 60 + s2 + ms2 / 1000.0
 
                 # Collect text lines until empty line.
@@ -402,11 +407,13 @@ class YoutubeParser(BaseParser):
 
                 text = " ".join(text_lines)
                 if text:
-                    segments.append({
-                        "start": start,
-                        "duration": end - start,
-                        "text": text,
-                    })
+                    segments.append(
+                        {
+                            "start": start,
+                            "duration": end - start,
+                            "text": text,
+                        }
+                    )
             i += 1
 
         return segments
@@ -454,12 +461,15 @@ class YoutubeParser(BaseParser):
                 error_msg = str(exc)
 
                 # Detect transient XML errors (empty response from YouTube).
-                is_transient = any(marker in error_msg for marker in (
-                    "no element found",
-                    "ParseError",
-                    "ExpatError",
-                    "not well-formed",
-                ))
+                is_transient = any(
+                    marker in error_msg
+                    for marker in (
+                        "no element found",
+                        "ParseError",
+                        "ExpatError",
+                        "not well-formed",
+                    )
+                )
 
                 if is_transient and attempt < _MAX_RETRIES:
                     delay = _RETRY_DELAY_SECONDS * attempt
@@ -512,17 +522,13 @@ class YoutubeParser(BaseParser):
 
         # Try manually created English transcript.
         try:
-            return transcript_list.find_manually_created_transcript(
-                ["en", "en-US", "en-GB"]
-            )
+            return transcript_list.find_manually_created_transcript(["en", "en-US", "en-GB"])
         except Exception:
             logger.debug("youtube_no_manual_transcript", video_id=video_id)
 
         # Try auto-generated English transcript.
         try:
-            return transcript_list.find_generated_transcript(
-                ["en", "en-US", "en-GB"]
-            )
+            return transcript_list.find_generated_transcript(["en", "en-US", "en-GB"])
         except Exception:
             logger.debug("youtube_no_generated_en_transcript", video_id=video_id)
 

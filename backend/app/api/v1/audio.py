@@ -43,11 +43,13 @@ async def generate_audio(
 ):
     """Trigger a Celery task to generate a podcast for the notebook."""
     await _verify_notebook_access(notebook_id, db, current_user)
-    
+
     # Check if a podcast generation is already running for this notebook
     existing = await generation_repo.list_by_type(db, notebook_id, GenerationType.PODCAST, limit=1)
     if existing and existing[0].status in [TaskStatus.PENDING, TaskStatus.PROCESSING]:
-        return ok(GenerationResponse.model_validate(existing[0]), "Podcast generation already in progress")
+        return ok(
+            GenerationResponse.model_validate(existing[0]), "Podcast generation already in progress"
+        )
 
     # Create generation record
     gen = await generation_repo.create(
@@ -58,7 +60,7 @@ async def generate_audio(
             "status": TaskStatus.PENDING,
         },
     )
-    
+
     # Trigger Celery task
     task = generate_podcast_task.delay(
         notebook_id=notebook_id,
@@ -66,10 +68,10 @@ async def generate_audio(
         tts_backend=payload.tts_backend,
         model=payload.model,
     )
-    
+
     # Save task_id in record
     gen = await generation_repo.update(db, str(gen.id), {"task_id": task.id})
-    
+
     return ok(GenerationResponse.model_validate(gen), "Podcast generation started")
 
 
@@ -84,17 +86,18 @@ async def get_audio_status(
 ):
     """Check the status of the most recent podcast generation for a notebook."""
     await _verify_notebook_access(notebook_id, db, current_user)
-    
+
     existing = await generation_repo.list_by_type(db, notebook_id, GenerationType.PODCAST, limit=1)
     if not existing:
         raise NotFoundError("Podcast Generation", notebook_id)
-        
+
     gen = existing[0]
-    audio_url = f"/api/v1/notebooks/{notebook_id}/audio/stream" if gen.status == TaskStatus.READY else None
-    
+    audio_url = (
+        f"/api/v1/notebooks/{notebook_id}/audio/stream" if gen.status == TaskStatus.READY else None
+    )
+
     resp = AudioStatusResponse(
-        generation=GenerationResponse.model_validate(gen),
-        audio_url=audio_url
+        generation=GenerationResponse.model_validate(gen), audio_url=audio_url
     )
     return ok(resp)
 
@@ -110,28 +113,26 @@ async def stream_audio(
 ):
     """Stream the generated podcast MP3 with Range support."""
     await _verify_notebook_access(notebook_id, db, current_user)
-    
+
     existing = await generation_repo.list_by_type(db, notebook_id, GenerationType.PODCAST, limit=1)
     if not existing:
         raise NotFoundError("Podcast Generation", notebook_id)
-        
+
     gen = existing[0]
     if gen.status != TaskStatus.READY or not gen.audio_path:
         raise NotFoundError("Podcast Audio", notebook_id)
-        
+
     storage = get_storage()
     if not await storage.exists(gen.audio_path):
         raise NotFoundError("Podcast File", gen.audio_path)
-        
+
     # Range support via FileResponse if using LocalStorage
     if isinstance(storage, LocalStorage):
         file_path = storage._resolve(gen.audio_path)
         return FileResponse(
-            path=file_path,
-            media_type="audio/mpeg",
-            headers={"Accept-Ranges": "bytes"}
+            path=file_path, media_type="audio/mpeg", headers={"Accept-Ranges": "bytes"}
         )
-    
+
     # Fallback for other storage backends (no Range support)
     data = await storage.load(gen.audio_path)
     return Response(content=data, media_type="audio/mpeg")
@@ -148,20 +149,20 @@ async def delete_audio(
 ):
     """Delete the podcast generation and its audio file."""
     await _verify_notebook_access(notebook_id, db, current_user)
-    
+
     existing = await generation_repo.list_by_type(db, notebook_id, GenerationType.PODCAST, limit=1)
     if not existing:
         raise NotFoundError("Podcast Generation", notebook_id)
-        
+
     gen = existing[0]
-    
+
     # Delete from storage
     if gen.audio_path:
         storage = get_storage()
         if await storage.exists(gen.audio_path):
             await storage.delete(gen.audio_path)
-            
+
     # Delete from database
     await generation_repo.delete(db, str(gen.id))
-    
+
     return ok(None, "Podcast deleted")

@@ -39,36 +39,32 @@ def create_celery_app() -> Celery:
         task_serializer="json",
         result_serializer="json",
         accept_content=["json"],
-
         # ─── Reliability ──────────────────────────────────────
         task_acks_late=True,
         worker_prefetch_multiplier=1,
         task_reject_on_worker_lost=True,
-
         # ─── Results ─────────────────────────────────────────
         result_expires=86400,  # 24 hours
-
         # ─── Task routing ────────────────────────────────────
         task_default_queue="default",
-
         # ─── Timezone ────────────────────────────────────────
         timezone="UTC",
         enable_utc=True,
-
         # ─── Worker ──────────────────────────────────────────
         worker_max_tasks_per_child=1000,
         worker_cancel_long_running_tasks_on_connection_loss=True,
-
         # ─── Task tracking ───────────────────────────────────
         task_track_started=True,
         task_send_sent_event=True,
     )
 
     # Auto-discover task modules within the workers package
-    app.autodiscover_tasks([
-        "app.workers.ingestion_tasks",
-        "app.workers.audio_tasks",
-    ])
+    app.autodiscover_tasks(
+        [
+            "app.workers.ingestion_tasks",
+            "app.workers.audio_tasks",
+        ]
+    )
 
     return app
 
@@ -81,6 +77,7 @@ celery_app = create_celery_app()
 def on_worker_process_init(**kwargs: Any) -> None:
     """Hydrate settings from DB when a worker process initializes."""
     from app.services.settings import hydrate_settings_from_db_sync
+
     hydrate_settings_from_db_sync()
 
 

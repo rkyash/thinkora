@@ -59,12 +59,15 @@ async def create_notebook(
 ):
     """Create a new notebook in the workspace."""
     await _verify_workspace_ownership(workspace_id, db, current_user)
-    notebook = await notebook_repo.create(db, {
-        "workspace_id": workspace_id,
-        "name": data.name,
-        "description": data.description,
-        "emoji": data.emoji,
-    })
+    notebook = await notebook_repo.create(
+        db,
+        {
+            "workspace_id": workspace_id,
+            "name": data.name,
+            "description": data.description,
+            "emoji": data.emoji,
+        },
+    )
     return {
         "success": True,
         "data": NotebookResponse.model_validate(notebook),
@@ -130,11 +133,10 @@ async def delete_notebook(
 router_direct = APIRouter(prefix="/notebooks", tags=["Notebooks Direct"])
 
 
-async def _verify_notebook_ownership(
-    notebook_id: str, db: AsyncSession, current_user: User
-):
+async def _verify_notebook_ownership(notebook_id: str, db: AsyncSession, current_user: User):
     """Verify the notebook exists and belongs to a workspace owned by the current user."""
     from app.models.notebook import Notebook
+
     notebook = await notebook_repo.get_or_404(db, notebook_id)
     workspace = await workspace_repo.get_or_404(db, notebook.workspace_id)
     if not workspace or workspace.owner_id != current_user.id:

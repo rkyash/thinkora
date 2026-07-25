@@ -7,6 +7,7 @@ Create Date: 2026-07-17 21:05:40.923570
 TASK-190: Add PostgreSQL indexes for search scalability.
 TASK-191: Add GIN index on tsvector(content) for efficient FTS.
 """
+
 from collections.abc import Sequence
 from typing import Union
 
@@ -14,8 +15,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'ff0be762920b'
-down_revision: str | Sequence[str] | None = 'd14aec8d7089'
+revision: str = "ff0be762920b"
+down_revision: str | Sequence[str] | None = "d14aec8d7089"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -32,14 +33,16 @@ def upgrade() -> None:
     5. B-tree on graph_edges.notebook_id — fast edge lookups per notebook.
     """
     # 1. GIN index for full-text search on document_chunks.content
-    op.execute(sa.text(
-        """
+    op.execute(
+        sa.text(
+            """
         CREATE INDEX IF NOT EXISTS
             ix_document_chunks_content_fts
         ON document_chunks
         USING GIN (to_tsvector('english', content))
         """
-    ))
+        )
+    )
 
     # 2. B-tree on document_chunks.notebook_id (filter for per-notebook search)
     op.create_index(

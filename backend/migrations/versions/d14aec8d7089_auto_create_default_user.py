@@ -5,6 +5,7 @@ Revises: 5f313a248c38
 Create Date: 2026-06-27 20:30:02.116334
 
 """
+
 from collections.abc import Sequence
 from typing import Union
 
@@ -12,8 +13,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'd14aec8d7089'
-down_revision: str | Sequence[str] | None = '5f313a248c38'
+revision: str = "d14aec8d7089"
+down_revision: str | Sequence[str] | None = "5f313a248c38"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -28,18 +29,17 @@ def upgrade() -> None:
     default_email = "admin@thinkora.local"
     default_username = "admin"
     default_password = "admin"
-    
+
     # Check if user already exists
     conn = op.get_bind()
     res = conn.execute(
-        sa.text("SELECT id FROM users WHERE email = :email"),
-        {"email": default_email}
+        sa.text("SELECT id FROM users WHERE email = :email"), {"email": default_email}
     ).fetchone()
 
     if not res:
         hashed_password = hash_password(default_password)
         user_id = str(uuid.uuid4())
-        
+
         conn.execute(
             sa.text(
                 """
@@ -52,16 +52,14 @@ def upgrade() -> None:
                 "email": default_email,
                 "username": default_username,
                 "hashed_password": hashed_password,
-                "is_active": True
-            }
+                "is_active": True,
+            },
         )
+
 
 def downgrade() -> None:
     """Downgrade schema."""
     default_email = "admin@thinkora.local"
-    
+
     conn = op.get_bind()
-    conn.execute(
-        sa.text("DELETE FROM users WHERE email = :email"),
-        {"email": default_email}
-    )
+    conn.execute(sa.text("DELETE FROM users WHERE email = :email"), {"email": default_email})

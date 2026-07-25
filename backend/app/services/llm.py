@@ -45,7 +45,7 @@ class LLMService:
         and inject them explicitly so LiteLLM doesn't rely on os.environ.
         """
         prefix = model.split("/")[0] if "/" in model else None
-        
+
         prefix_map = {
             "openai": ("OPENAI_API_KEY", None),
             "anthropic": ("ANTHROPIC_API_KEY", None),
@@ -55,7 +55,7 @@ class LLMService:
             "openrouter": ("OPENROUTER_API_KEY", None),
             "ollama": (None, "OLLAMA_BASE_URL"),
         }
-        
+
         # Special handling for openai_proxy which shares the 'openai/' prefix
         if settings.ACTIVE_PROVIDER == "openai_proxy" and prefix == "openai":
             key_attr = "OPENAI_PROXY_API_KEY"
@@ -65,13 +65,13 @@ class LLMService:
             if not info:
                 return kwargs
             key_attr, base_url_attr = info
-            
+
         if key_attr and getattr(settings, key_attr, None) and "api_key" not in kwargs:
             kwargs["api_key"] = getattr(settings, key_attr)
-            
+
         if base_url_attr and getattr(settings, base_url_attr, None) and "api_base" not in kwargs:
             kwargs["api_base"] = getattr(settings, base_url_attr)
-            
+
         return kwargs
 
     async def get_chat_completion(

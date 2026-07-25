@@ -70,7 +70,9 @@ def _extract_json(text: str) -> Any:
     raise ValueError(f"Could not extract JSON from LLM output: {text[:200]}")
 
 
-async def _collect_notebook_text(db: AsyncSession, notebook_id: str, max_chars: int = 60_000) -> str:
+async def _collect_notebook_text(
+    db: AsyncSession, notebook_id: str, max_chars: int = 60_000
+) -> str:
     """Aggregate document chunk text from a notebook (up to max_chars)."""
     chunks = await chunk_repo.list_all(db, notebook_id=notebook_id, limit=500)
     parts: list[str] = []
@@ -99,14 +101,14 @@ def _gtts_synthesize(text: str, is_host: bool) -> io.BytesIO:
 async def _elevenlabs_synthesize(text: str, is_host: bool) -> io.BytesIO:
     """Synthesize text to MP3 using ElevenLabs API (requires API key)."""
     import httpx
-    
+
     api_key = settings.ELEVENLABS_API_KEY
     if not api_key:
         raise ValueError("ELEVENLABS_API_KEY not configured")
 
     # Hardcoded voice IDs for host and expert
     voice_id = "21m00Tcm4TlvDq8ikWAM" if is_host else "EXAVITQu4vr4xnSDxMaL"
-    
+
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     headers = {
         "Accept": "audio/mpeg",
@@ -116,16 +118,13 @@ async def _elevenlabs_synthesize(text: str, is_host: bool) -> io.BytesIO:
     data = {
         "text": text,
         "model_id": "eleven_monolingual_v1",
-        "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.75
-        }
+        "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
     }
-    
+
     async with httpx.AsyncClient() as client:
         response = await client.post(url, json=data, headers=headers, timeout=30.0)
         response.raise_for_status()
-        
+
     fp = io.BytesIO(response.content)
     fp.seek(0)
     return fp
@@ -150,32 +149,36 @@ class AudioService:
     ) -> str:
         """
         Generate a multi-speaker podcast from a notebook's content.
-        
+
         Steps:
         1. Script generation via LLM.
         2. TTS conversion per segment.
         3. Audio stitching with pauses.
         4. Save to storage.
-        
+
         Returns:
             The storage path of the final MP3.
         """
         channel_id = generation_id
 
         # 1. Fetch content
-        await publish_event(channel_id, {"status": "processing", "step": "reading_content", "pct": 10})
+        await publish_event(
+            channel_id, {"status": "processing", "step": "reading_content", "pct": 10}
+        )
         content = await _collect_notebook_text(self._db, notebook_id)
         if not content.strip():
             raise ValueError("No source content found in notebook.")
 
         # 2. Generate script
-        await publish_event(channel_id, {"status": "processing", "step": "generating_script", "pct": 20})
+        await publish_event(
+            channel_id, {"status": "processing", "step": "generating_script", "pct": 20}
+        )
         prompt = _PODCAST_PROMPT.format(content=content[:50_000])
         messages = [{"role": "user", "content": prompt}]
 
         log.info("generate_podcast_script_start", notebook_id=notebook_id)
         raw = await self._llm.get_chat_completion(messages=messages, model=model, temperature=0.7)
-        
+
         try:
             script = _extract_json(raw)
         except ValueError as exc:
@@ -186,27 +189,29 @@ class AudioService:
             raise ValueError("LLM returned invalid script format.")
 
         # 3. TTS Conversion
-        await publish_event(channel_id, {"status": "processing", "step": "synthesizing_audio", "pct": 40})
-        
+        await publish_event(
+            channel_id, {"status": "processing", "step": "synthesizing_audio", "pct": 40}
+        )
+
         audio_segments: list[AudioSegment] = []
         total_segments = len(script)
         last_tts_error: Exception | None = None
-        
+
         for idx, segment in enumerate(script):
             speaker = segment.get("speaker", "Host")
             text = segment.get("text", "")
             if not text:
                 continue
-                
-            is_host = (speaker.lower() == "host")
-            
+
+            is_host = speaker.lower() == "host"
+
             # Synthesize
             try:
                 if tts_backend == "elevenlabs" and settings.ELEVENLABS_API_KEY:
                     fp = await _elevenlabs_synthesize(text, is_host)
                 else:
                     fp = await asyncio.to_thread(_gtts_synthesize, text, is_host)
-                    
+
                 # Load into pydub
                 audio_seg = await asyncio.to_thread(AudioSegment.from_file, fp, format="mp3")
                 audio_segments.append(audio_seg)
@@ -214,25 +219,29 @@ class AudioService:
                 log.error("tts_generation_failed", error=str(e), text=text[:50])
                 last_tts_error = e
                 continue
-                
+
             # Update progress incrementally
             pct = 40 + int(40 * (idx / total_segments))
-            await publish_event(channel_id, {"status": "processing", "step": "synthesizing_audio", "pct": pct})
+            await publish_event(
+                channel_id, {"status": "processing", "step": "synthesizing_audio", "pct": pct}
+            )
 
         if not audio_segments:
             err_suffix = f": {str(last_tts_error)}" if last_tts_error else ""
             raise ValueError(f"Failed to generate any audio segments{err_suffix}")
 
         # 4. Audio stitching
-        await publish_event(channel_id, {"status": "processing", "step": "stitching_audio", "pct": 80})
-        
+        await publish_event(
+            channel_id, {"status": "processing", "step": "stitching_audio", "pct": 80}
+        )
+
         # 0.5 second pause between speakers
         pause = AudioSegment.silent(duration=500)
-        
+
         final_audio = audio_segments[0]
         for seg in audio_segments[1:]:
             final_audio = final_audio + pause + seg
-            
+
         # Export to BytesIO
         out_fp = io.BytesIO()
         await asyncio.to_thread(final_audio.export, out_fp, format="mp3")
@@ -242,8 +251,8 @@ class AudioService:
         await publish_event(channel_id, {"status": "processing", "step": "saving", "pct": 95})
         path = f"audio/{generation_id}.mp3"
         saved_path = await self._storage.save(path, audio_bytes)
-        
+
         await publish_event(channel_id, {"status": "ready", "step": "done", "pct": 100})
         log.info("generate_podcast_done", notebook_id=notebook_id, path=saved_path)
-        
+
         return saved_path

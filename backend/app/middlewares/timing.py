@@ -16,9 +16,7 @@ SLOW_REQUEST_THRESHOLD_MS = 2000
 class TimingMiddleware(BaseHTTPMiddleware):
     """Measure request processing time and log slow requests."""
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         start = time.perf_counter()
         response = await call_next(request)
         duration_ms = (time.perf_counter() - start) * 1000

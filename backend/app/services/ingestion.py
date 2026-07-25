@@ -87,9 +87,7 @@ def chunk_text(
                 overlap_length += len(s) + 1  # +1 for space
 
             current_chunk = overlap_sentences
-            current_length = sum(len(s) for s in current_chunk) + max(
-                0, len(current_chunk) - 1
-            )
+            current_length = sum(len(s) for s in current_chunk) + max(0, len(current_chunk) - 1)
 
         current_chunk.append(sentence)
         current_length += sentence_len + (1 if len(current_chunk) > 1 else 0)
@@ -144,9 +142,7 @@ class IngestionService:
             # ── 1. Fetch & mark PROCESSING ────────────────────
             source = await self._source_repo.get_or_404(self._db, source_id)
 
-            await self._source_repo.update_status(
-                self._db, source_id, SourceStatus.PROCESSING
-            )
+            await self._source_repo.update_status(self._db, source_id, SourceStatus.PROCESSING)
             await self._db.commit()
 
             await publish_event(

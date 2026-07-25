@@ -19,7 +19,7 @@ class TxtParser(BaseParser):
     async def parse(self, data: bytes, *, filename: str = "") -> str:
         """
         Parse raw bytes as a text string.
-        
+
         Attempts to detect encoding if UTF-8 fails.
         """
         if not data:

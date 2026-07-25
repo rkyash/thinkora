@@ -55,14 +55,16 @@ class TestProgressEvent:
         assert parsed["detail"] == {"chunks": 12}
 
     def test_from_json(self):
-        raw = json.dumps({
-            "resource_id": "x",
-            "status": "ready",
-            "step": "done",
-            "pct": 100,
-            "detail": {},
-            "timestamp": "2026-01-01T00:00:00",
-        })
+        raw = json.dumps(
+            {
+                "resource_id": "x",
+                "status": "ready",
+                "step": "done",
+                "pct": 100,
+                "detail": {},
+                "timestamp": "2026-01-01T00:00:00",
+            }
+        )
         event = ProgressEvent.from_json(raw)
         assert event.resource_id == "x"
         assert event.status == "ready"
@@ -72,7 +74,7 @@ class TestProgressEvent:
         event = ProgressEvent(resource_id="r1", status="processing", step="parsing")
         sse_line = event.to_sse()
         assert sse_line.startswith("data: ")
-        payload = json.loads(sse_line[len("data: "):])
+        payload = json.loads(sse_line[len("data: ") :])
         assert payload["status"] == "processing"
 
     def test_frozen(self):
@@ -186,9 +188,11 @@ class TestSubscribe:
             pct=100,
         ).to_json()
 
-        pubsub = self._make_mock_pubsub([
-            {"type": "message", "data": event_data},
-        ])
+        pubsub = self._make_mock_pubsub(
+            [
+                {"type": "message", "data": event_data},
+            ]
+        )
         mock_redis = self._make_mock_redis(pubsub)
 
         events = []
@@ -221,9 +225,7 @@ class TestSubscribe:
                 # Return a terminal event to stop the stream
                 return {
                     "type": "message",
-                    "data": ProgressEvent(
-                        resource_id="src-1", status="ready"
-                    ).to_json(),
+                    "data": ProgressEvent(resource_id="src-1", status="ready").to_json(),
                 }
             raise asyncio.CancelledError
 
@@ -231,9 +233,7 @@ class TestSubscribe:
         mock_redis = self._make_mock_redis(pubsub)
 
         events = []
-        async for sse_line in subscribe(
-            "src-1", heartbeat_seconds=1, redis_client=mock_redis
-        ):
+        async for sse_line in subscribe("src-1", heartbeat_seconds=1, redis_client=mock_redis):
             events.append(sse_line)
 
         assert events[0] == ": heartbeat\n\n"
@@ -247,9 +247,11 @@ class TestSubscribe:
             detail={"message": "parse failed"},
         ).to_json()
 
-        pubsub = self._make_mock_pubsub([
-            {"type": "message", "data": event_data},
-        ])
+        pubsub = self._make_mock_pubsub(
+            [
+                {"type": "message", "data": event_data},
+            ]
+        )
         mock_redis = self._make_mock_redis(pubsub)
 
         events = []
@@ -264,22 +266,18 @@ class TestSubscribe:
     async def test_subscribe_continues_on_non_terminal(self):
         """Non-terminal events should keep the stream open."""
         events_data = [
-            ProgressEvent(
-                resource_id="s1", status="processing", step="parsing", pct=25
-            ).to_json(),
-            ProgressEvent(
-                resource_id="s1", status="processing", step="chunking", pct=50
-            ).to_json(),
-            ProgressEvent(
-                resource_id="s1", status="ready", step="done", pct=100
-            ).to_json(),
+            ProgressEvent(resource_id="s1", status="processing", step="parsing", pct=25).to_json(),
+            ProgressEvent(resource_id="s1", status="processing", step="chunking", pct=50).to_json(),
+            ProgressEvent(resource_id="s1", status="ready", step="done", pct=100).to_json(),
         ]
 
-        pubsub = self._make_mock_pubsub([
-            {"type": "message", "data": events_data[0]},
-            {"type": "message", "data": events_data[1]},
-            {"type": "message", "data": events_data[2]},
-        ])
+        pubsub = self._make_mock_pubsub(
+            [
+                {"type": "message", "data": events_data[0]},
+                {"type": "message", "data": events_data[1]},
+                {"type": "message", "data": events_data[2]},
+            ]
+        )
         mock_redis = self._make_mock_redis(pubsub)
 
         events = []
@@ -297,14 +295,14 @@ class TestSubscribe:
     @pytest.mark.asyncio
     async def test_subscribe_skips_subscribe_messages(self):
         """Subscribe confirmation messages from Redis should be ignored."""
-        event_data = ProgressEvent(
-            resource_id="s1", status="ready"
-        ).to_json()
+        event_data = ProgressEvent(resource_id="s1", status="ready").to_json()
 
-        pubsub = self._make_mock_pubsub([
-            {"type": "subscribe", "data": 1},  # Redis subscribe confirmation
-            {"type": "message", "data": event_data},
-        ])
+        pubsub = self._make_mock_pubsub(
+            [
+                {"type": "subscribe", "data": 1},  # Redis subscribe confirmation
+                {"type": "message", "data": event_data},
+            ]
+        )
         mock_redis = self._make_mock_redis(pubsub)
 
         events = []
@@ -317,9 +315,11 @@ class TestSubscribe:
     @pytest.mark.asyncio
     async def test_subscribe_handles_malformed_json(self):
         """Malformed JSON should still be forwarded as raw data."""
-        pubsub = self._make_mock_pubsub([
-            {"type": "message", "data": "not-valid-json{{{"},
-        ])
+        pubsub = self._make_mock_pubsub(
+            [
+                {"type": "message", "data": "not-valid-json{{{"},
+            ]
+        )
         mock_redis = self._make_mock_redis(pubsub)
 
         events = []
