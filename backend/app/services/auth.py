@@ -7,6 +7,7 @@ from __future__ import annotations
 import base64
 import hashlib
 from datetime import UTC, datetime, timedelta, timezone
+from typing import Any
 
 import bcrypt
 import jwt
@@ -59,7 +60,7 @@ def create_access_token(user_id: str) -> str:
     """Create a short-lived access JWT."""
     expire = datetime.now(UTC) + ACCESS_TOKEN_EXPIRE
     payload = {"sub": user_id, "exp": expire, "type": "access"}
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)  # type: ignore[arg-type]
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
 def create_refresh_token(user_id: str) -> str:
@@ -69,10 +70,10 @@ def create_refresh_token(user_id: str) -> str:
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
-def decode_token(token: str) -> dict:
+def decode_token(token: str) -> dict[str, Any]:
     """Decode and validate a JWT. Raises AuthenticationError on failure."""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        payload: dict[str, Any] = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str | None = payload.get("sub")
         if user_id is None:
             raise AuthenticationError("Invalid token: missing subject")
@@ -84,7 +85,7 @@ def decode_token(token: str) -> dict:
 async def is_token_blacklisted(token: str) -> bool:
     """Check if a token has been blacklisted (logout)."""
     redis = await get_redis()
-    return await redis.exists(f"{TOKEN_BLACKLIST_PREFIX}{token}") > 0
+    return bool(await redis.exists(f"{TOKEN_BLACKLIST_PREFIX}{token}") > 0)
 
 
 async def blacklist_token(token: str) -> None:
@@ -100,7 +101,7 @@ async def blacklist_token(token: str) -> None:
         pass  # Already expired, no need to blacklist
 
 
-async def register_user(db: AsyncSession, data: UserCreate) -> tuple[dict, TokenResponse]:
+async def register_user(db: AsyncSession, data: UserCreate) -> tuple[dict[str, Any], TokenResponse]:
     """Register a new user. Returns (user_dict, tokens)."""
     # Check for existing email/username
     existing = await user_repo.get_by_email(db, data.email)
@@ -149,7 +150,7 @@ async def register_user(db: AsyncSession, data: UserCreate) -> tuple[dict, Token
     }, tokens
 
 
-async def login_user(db: AsyncSession, email: str, password: str) -> tuple[dict, TokenResponse]:
+async def login_user(db: AsyncSession, email: str, password: str) -> tuple[dict[str, Any], TokenResponse]:
     """Authenticate user and return tokens."""
     user = await user_repo.get_by_email_or_username(db, email)
     if not user or not verify_password(password, user.hashed_password):

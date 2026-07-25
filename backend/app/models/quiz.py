@@ -3,7 +3,10 @@ Quiz and QuizQuestion models — AI-generated assessment quizzes.
 QuizQuestion is included here as a tightly-coupled child entity (DEC-003).
 """
 
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB
@@ -12,6 +15,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.constants import QuestionType
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.notebook import Notebook
 
 
 class Quiz(Base):
@@ -24,8 +30,8 @@ class Quiz(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    notebook: Mapped["Notebook"] = relationship(back_populates="quizzes")  # noqa: F821
-    questions: Mapped[list["QuizQuestion"]] = relationship(
+    notebook: Mapped[Notebook] = relationship(back_populates="quizzes")  # noqa: F821
+    questions: Mapped[list[QuizQuestion]] = relationship(
         back_populates="quiz", cascade="all, delete-orphan"
     )
 
@@ -44,12 +50,12 @@ class QuizQuestion(Base):
         Enum(QuestionType, name="question_type"), nullable=False
     )
     # [{text, is_correct}] for MCQ
-    options: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    options: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     correct_answer: Mapped[str | None] = mapped_column(Text, nullable=True)
     explanation: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships
-    quiz: Mapped["Quiz"] = relationship(back_populates="questions")
+    quiz: Mapped[Quiz] = relationship(back_populates="questions")
 
     def __repr__(self) -> str:
         return f"<QuizQuestion {self.type.value}: {self.question[:50]}>"

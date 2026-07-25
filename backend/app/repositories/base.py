@@ -67,7 +67,7 @@ class GenericRepo(Generic[ModelT]):
 
         # Order by created_at if available, else by id
         if hasattr(self.model, "created_at"):
-            query = query.order_by(self.model.created_at.desc())  # type: ignore[union-attr]
+            query = query.order_by(self.model.created_at.desc())  # type: ignore[attr-defined]
 
         query = query.offset(offset).limit(limit)
         result = await db.execute(query)

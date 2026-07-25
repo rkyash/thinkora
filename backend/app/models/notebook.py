@@ -2,13 +2,27 @@
 Notebook model — contains sources, chats, notes, study tools.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.chat_session import ChatSession
+    from app.models.flashcard import Flashcard
+    from app.models.generation import Generation
+    from app.models.graph_edge import GraphEdge
+    from app.models.graph_node import GraphNode
+    from app.models.note import Note
+    from app.models.quiz import Quiz
+    from app.models.source import Source
+    from app.models.workspace import Workspace
 
 
 class Notebook(Base):
@@ -26,29 +40,29 @@ class Notebook(Base):
     )
 
     # Relationships
-    workspace: Mapped["Workspace"] = relationship(back_populates="notebooks")  # noqa: F821
-    sources: Mapped[list["Source"]] = relationship(  # noqa: F821
+    workspace: Mapped[Workspace] = relationship(back_populates="notebooks")  # noqa: F821
+    sources: Mapped[list[Source]] = relationship(  # noqa: F821
         back_populates="notebook", cascade="all, delete-orphan"
     )
-    chat_sessions: Mapped[list["ChatSession"]] = relationship(  # noqa: F821
+    chat_sessions: Mapped[list[ChatSession]] = relationship(  # noqa: F821
         back_populates="notebook", cascade="all, delete-orphan"
     )
-    notes: Mapped[list["Note"]] = relationship(  # noqa: F821
+    notes: Mapped[list[Note]] = relationship(  # noqa: F821
         back_populates="notebook", cascade="all, delete-orphan"
     )
-    flashcards: Mapped[list["Flashcard"]] = relationship(  # noqa: F821
+    flashcards: Mapped[list[Flashcard]] = relationship(  # noqa: F821
         back_populates="notebook", cascade="all, delete-orphan"
     )
-    quizzes: Mapped[list["Quiz"]] = relationship(  # noqa: F821
+    quizzes: Mapped[list[Quiz]] = relationship(  # noqa: F821
         back_populates="notebook", cascade="all, delete-orphan"
     )
-    graph_nodes: Mapped[list["GraphNode"]] = relationship(  # noqa: F821
+    graph_nodes: Mapped[list[GraphNode]] = relationship(  # noqa: F821
         back_populates="notebook", cascade="all, delete-orphan"
     )
-    graph_edges: Mapped[list["GraphEdge"]] = relationship(  # noqa: F821
+    graph_edges: Mapped[list[GraphEdge]] = relationship(  # noqa: F821
         back_populates="notebook", cascade="all, delete-orphan"
     )
-    generations: Mapped[list["Generation"]] = relationship(  # noqa: F821
+    generations: Mapped[list[Generation]] = relationship(  # noqa: F821
         back_populates="notebook", cascade="all, delete-orphan"
     )
 

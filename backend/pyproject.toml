@@ -9,6 +9,14 @@ python_version = "3.11"
 strict = true
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
+# ── Deferred annotation rules ─────────────────────────────────────────────────
+# Missing return/param annotations are tracked separately (same as ANN in ruff).
+# All other strict checks (type-arg, assignment, return-value, etc.) remain active.
+disable_error_code = [
+    "no-untyped-def",
+    "no-untyped-call",
+    "untyped-decorator",
+]
 
 [tool.ruff]
 target-version = "py311"

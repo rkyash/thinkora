@@ -23,7 +23,7 @@ class ChunkRepo(GenericRepo[DocumentChunk]):
         """Delete all chunks for a source. Returns count deleted."""
         result = await db.execute(delete(DocumentChunk).where(DocumentChunk.source_id == source_id))
         await db.flush()
-        return result.rowcount  # type: ignore[return-value]
+        return int(result.rowcount or 0)  # type: ignore[attr-defined]
 
     async def get_by_qdrant_ids(
         self, db: AsyncSession, qdrant_ids: list[str]

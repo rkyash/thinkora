@@ -67,7 +67,7 @@ class CsvParser(BaseParser):
             rows=len(df),
             columns=len(df.columns),
         )
-        return text
+        return str(text or "")
 
     # ------------------------------------------------------------------
     # Helpers

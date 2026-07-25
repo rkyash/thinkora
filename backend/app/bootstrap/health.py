@@ -87,7 +87,7 @@ async def _check_redis() -> bool:
         r = aioredis.from_url(settings.REDIS_URL, socket_connect_timeout=3)
         pong = await r.ping()
         await r.aclose()
-        return pong
+        return bool(pong)
     except Exception:
         return False
 

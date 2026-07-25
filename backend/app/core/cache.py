@@ -41,7 +41,7 @@ async def redis_ping() -> bool:
     """Health check: ping Redis."""
     try:
         client = await get_redis()
-        return await client.ping()
+        return bool(await client.ping())
     except Exception as e:
         logger.error("redis_ping_failed", error=str(e))
         return False

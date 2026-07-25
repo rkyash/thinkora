@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -20,7 +20,7 @@ class ChatResponse(BaseModel):
     """Fallback schema for non-streaming response if needed"""
 
     message: ChatMessage
-    citations: list[dict] = []
+    citations: list[dict[str, Any]] = []
 
 
 class ChatSessionCreate(BaseModel):

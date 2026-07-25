@@ -121,7 +121,7 @@ class GraphService:
 
     # ─── Public API ───────────────────────────────────────────────────────
 
-    async def get_graph(self, notebook_id: str) -> dict[str, list]:
+    async def get_graph(self, notebook_id: str) -> dict[str, list[Any]]:
         """Return all nodes + edges for a notebook."""
         node_result = await self._db.execute(
             select(GraphNode).where(GraphNode.notebook_id == notebook_id)
@@ -135,7 +135,7 @@ class GraphService:
 
         return {"nodes": nodes, "edges": edges}
 
-    async def refresh_graph(self, notebook_id: str, model: str | None = None) -> dict[str, list]:
+    async def refresh_graph(self, notebook_id: str, model: str | None = None) -> dict[str, list[Any]]:
         """
         Regenerate the knowledge graph for a notebook:
           1. Collect all chunk text.
@@ -163,8 +163,8 @@ class GraphService:
         state = await self._deduplicate_entities(state)
 
         final = state["final"]
-        raw_nodes: list[dict] = final.get("nodes", [])
-        raw_edges: list[dict] = final.get("edges", [])
+        raw_nodes: list[dict[str, Any]] = final.get("nodes", [])
+        raw_edges: list[dict[str, Any]] = final.get("edges", [])
 
         # Enforce node cap
         raw_nodes = raw_nodes[:MAX_GRAPH_NODES]

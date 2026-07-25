@@ -36,8 +36,8 @@ class LLMService:
         if attr:
             value = getattr(settings, attr, None)
             if value and value.strip():
-                return value
-        return settings.DEFAULT_MODEL
+                return str(value)
+        return str(settings.DEFAULT_MODEL)
 
     def _inject_kwargs_for_model(self, model: str, kwargs: dict[str, Any]) -> dict[str, Any]:
         """
@@ -56,21 +56,23 @@ class LLMService:
             "ollama": (None, "OLLAMA_BASE_URL"),
         }
 
+        key_attr: str | None
+        base_url_attr: str | None
         # Special handling for openai_proxy which shares the 'openai/' prefix
         if settings.ACTIVE_PROVIDER == "openai_proxy" and prefix == "openai":
             key_attr = "OPENAI_PROXY_API_KEY"
             base_url_attr = "OPENAI_PROXY_BASE_URL"
         else:
-            info = prefix_map.get(prefix)
+            info = prefix_map.get(prefix or "")
             if not info:
                 return kwargs
             key_attr, base_url_attr = info
 
         if key_attr and getattr(settings, key_attr, None) and "api_key" not in kwargs:
-            kwargs["api_key"] = getattr(settings, key_attr)
+            kwargs["api_key"] = str(getattr(settings, key_attr))
 
         if base_url_attr and getattr(settings, base_url_attr, None) and "api_base" not in kwargs:
-            kwargs["api_base"] = getattr(settings, base_url_attr)
+            kwargs["api_base"] = str(getattr(settings, base_url_attr))
 
         return kwargs
 
@@ -97,7 +99,7 @@ class LLMService:
             temperature=temperature,
             **kwargs,
         )
-        return response.choices[0].message.content
+        return str(response.choices[0].message.content)
 
     async def get_chat_stream(
         self,
@@ -151,7 +153,7 @@ class LLMService:
             input=[text],
             **kwargs,
         )
-        return response.data[0]["embedding"]
+        return list(response.data[0]["embedding"])
 
 
 # Singleton instance

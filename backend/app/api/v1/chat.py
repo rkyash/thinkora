@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -79,7 +79,7 @@ async def list_chat_sessions(
 )
 async def create_chat_session(
     notebook_id: UUID,
-    payload: ChatSessionCreate = None,
+    payload: ChatSessionCreate | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -95,14 +95,9 @@ async def create_chat_session(
         )
 
     except Exception as e:
-        # raise HTTPException(
-        #     status_code=status.HTTP_400_BAD_REQUEST,
-        #     detail=f"Failed to create chat session: {str(e)}",
-        # )
-        raise ApiError(
-            success=False,
-            error=f"Failed to create chat session: {str(e)}",
-            code="chat_session_creation_failed",
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create chat session: {str(e)}",
         )
 
 

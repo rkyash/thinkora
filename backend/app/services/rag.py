@@ -137,7 +137,7 @@ class RAGService:
                 try:
                     src = await source_repo.get(self._db, sid)
                     if src:
-                        source_name_map[sid] = src.name
+                        source_name_map[sid] = src.name or ""
                 except Exception:
                     pass
 
@@ -173,7 +173,7 @@ class RAGService:
             "- **NEVER repeat or quote back the user's question** in your answer — jump directly to the answer.\n"
             "- Use `## Section Title` headings to separate logical parts of a longer answer.\n"
             "- Keep simple questions short (2–5 sentences); expand only when complexity demands it.\n"
-            "- For **long responses**, end with a `## Key Takeaways` section or a `> **📝 Summary:**` blockquote.\n\n"
+            "- For **long responses**, end with a `## Key Takeaways` section or a `**📝 Summary:**` blockquote.\n\n"
             "### Lists — CRITICAL RULES\n"
             "- ALWAYS place each list item on its **own new line**.\n"
             "- NEVER write list items inline or separated by `*` within a sentence.\n"
@@ -194,9 +194,9 @@ class RAGService:
             "  | ...     | ...      | ...      |\n\n"
             "### Callouts & Tips\n"
             "- Use blockquotes for tips, warnings, and important notes:\n"
-            "  `> **💡 Tip:** ...`\n"
-            "  `> **⚠️ Warning:** ...`\n"
-            "  `> **📌 Note:** ...`\n\n"
+            "  `**💡 Tip:** ...`\n"
+            "  `**⚠️ Warning:** ...`\n"
+            "  `**📌 Note:** ...`\n\n"
             "### Emphasis\n"
             "- Use `**bold**` for key terms, critical points, and important values.\n"
             "- Use `_italic_` for definitions, introductions of new concepts, or light emphasis.\n\n"
@@ -206,7 +206,7 @@ class RAGService:
             "'_This is not explicitly covered in the provided context, but based on general knowledge..._' "
             "and clearly separate it from context-grounded content.\n"
             "- If the answer is entirely absent from the context, respond with: "
-            "'> **❌ Not found in context:** The provided sources do not contain information about [topic]. "
+            "'**❌ Not found in context:** The provided sources do not contain information about [topic]. "
             "Please consult additional resources or upload relevant material.'\n\n"
             "---\n\n"
             f"## Context\n{context_text}"

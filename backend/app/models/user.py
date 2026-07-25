@@ -2,12 +2,18 @@
 User model — authentication and ownership.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.workspace import Workspace
 
 
 class User(Base):
@@ -23,7 +29,7 @@ class User(Base):
     )
 
     # Relationships
-    workspaces: Mapped[list["Workspace"]] = relationship(  # noqa: F821
+    workspaces: Mapped[list[Workspace]] = relationship(  # noqa: F821
         back_populates="owner", cascade="all, delete-orphan"
     )
 

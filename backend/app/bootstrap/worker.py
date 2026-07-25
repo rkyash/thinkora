@@ -10,7 +10,7 @@ import sys
 from app.config import settings
 from app.core.logging import logger
 
-_worker_process: subprocess.Popen | None = None
+_worker_process: subprocess.Popen[bytes] | None = None
 
 
 def start_worker(concurrency: int = 2) -> bool:

@@ -2,7 +2,10 @@
 ChatMessage model — individual messages in a chat session.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Text, func
 from sqlalchemy.dialects.postgresql import JSONB
@@ -11,6 +14,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.constants import MessageRole
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.chat_session import ChatSession
 
 
 class ChatMessage(Base):
@@ -24,11 +30,11 @@ class ChatMessage(Base):
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     # [{source_id, source_name, chunk_content, score}]
-    citations: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    citations: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    session: Mapped["ChatSession"] = relationship(back_populates="messages")  # noqa: F821
+    session: Mapped[ChatSession] = relationship(back_populates="messages")  # noqa: F821
 
     def __repr__(self) -> str:
         return f"<ChatMessage {self.role.value} ({len(self.content)} chars)>"

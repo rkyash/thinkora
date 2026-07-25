@@ -43,7 +43,7 @@ def create_app() -> FastAPI:
 
     # ─── Middleware (order matters: last added = first executed) ───
     # CORS must be outermost
-    application.add_middleware(CORSMiddleware, **CORS_CONFIG)
+    application.add_middleware(CORSMiddleware, **CORS_CONFIG)  # type: ignore[arg-type]
 
     # Timing (wraps everything after CORS)
     application.add_middleware(TimingMiddleware)
@@ -99,7 +99,7 @@ def create_app() -> FastAPI:
         }
 
     @application.get("/readyz", tags=["Health"])
-    async def readiness_check() -> dict:
+    async def readiness_check() -> JSONResponse:
         """
         Readiness probe — checks all critical dependencies.
         Returns 200 when PostgreSQL, Redis, and Qdrant are reachable.
@@ -109,7 +109,7 @@ def create_app() -> FastAPI:
 
         from fastapi.responses import JSONResponse
 
-        deps: dict[str, str] = {}
+        deps: dict[str, str] = {}  # noqa: E501
 
         # ── PostgreSQL ────────────────────────────────────────────
         try:

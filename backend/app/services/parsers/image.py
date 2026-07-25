@@ -82,7 +82,7 @@ class ImageParser(BaseParser):
                     )
 
                     # Clean up the text
-                    text = text.strip()
+                    text = str(text).strip()
 
                     if text:
                         logger.info(

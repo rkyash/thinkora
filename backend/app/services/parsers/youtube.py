@@ -16,6 +16,7 @@ import json
 import re
 import shutil
 import subprocess
+from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from app.core.constants import SourceType
@@ -139,8 +140,9 @@ class YoutubeParser(BaseParser):
         # Format segments with timestamps.
         lines: list[str] = []
         for segment in transcript_segments:
-            start = segment.get("start", 0.0)
-            text = segment.get("text", "").strip()
+            raw_start = segment.get("start")
+            start = float(raw_start) if isinstance(raw_start, (int, float)) else 0.0
+            text = str(segment.get("text") or "").strip()
             if text:
                 timestamp = _format_timestamp(start)
                 lines.append(f"[{timestamp}] {text}")
@@ -240,7 +242,7 @@ class YoutubeParser(BaseParser):
 
     def _extract_segments_from_ytdlp(
         self,
-        info: dict,
+        info: dict[str, Any],
         video_id: str,
     ) -> list[dict[str, object]] | None:
         """Extract subtitle segments from yt-dlp JSON info dict."""
@@ -335,7 +337,7 @@ class YoutubeParser(BaseParser):
 
     def _parse_json3_subtitles(
         self,
-        data: dict,
+        data: dict[str, Any],
     ) -> list[dict[str, object]]:
         """Parse yt-dlp json3 subtitle format into segment dicts."""
         segments: list[dict[str, object]] = []
@@ -454,7 +456,7 @@ class YoutubeParser(BaseParser):
                     segments=len(segments),
                     attempt=attempt,
                 )
-                return segments
+                return list(segments)
 
             except Exception as exc:
                 last_error = exc

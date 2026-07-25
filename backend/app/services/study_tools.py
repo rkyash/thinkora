@@ -275,7 +275,7 @@ class StudyToolsService:
             raise ValueError("LLM returned non-list JSON for flashcards")
 
         # Validate & create cards
-        rows: list[dict] = []
+        rows: list[dict[str, Any]] = []
         for item in cards_data:
             if not isinstance(item, dict):
                 continue
@@ -351,7 +351,7 @@ class StudyToolsService:
         quiz = await quiz_repo.create(self._db, {"notebook_id": notebook_id, "title": quiz_title})
 
         # Create questions
-        question_rows: list[dict] = []
+        question_rows: list[dict[str, Any]] = []
         for item in questions_data:
             if not isinstance(item, dict):
                 continue

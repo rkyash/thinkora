@@ -13,7 +13,7 @@ import structlog
 logger = structlog.get_logger()
 
 
-class BaseTask(celery.Task):
+class BaseTask(celery.Task):  # type: ignore[misc]
     """
     Abstract base class for all Thinkora Celery tasks.
 

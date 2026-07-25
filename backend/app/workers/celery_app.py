@@ -83,7 +83,7 @@ def on_worker_process_init(**kwargs: Any) -> None:
 
 # ─── Verification task ──────────────────────────────────────
 @celery_app.task(name="thinkora.test_add", bind=True, ignore_result=False)
-def test_add(self, x: int, y: int) -> dict:
+def test_add(self, x: int, y: int) -> dict[str, Any]:
     """
     Smoke-test task to verify Celery workers are operational.
 
