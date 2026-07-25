@@ -1,12 +1,15 @@
 import json
 import re
-from typing import AsyncGenerator, Dict, List, Any
+from collections.abc import AsyncGenerator
+from typing import Any, Dict, List
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.services.llm import get_llm_service
-from app.services.vector_store import get_vector_store
-from app.repositories.chunk import ChunkRepo
+
 from app.core.logging import logger
 from app.core.prompt_security import sanitize_user_content
+from app.repositories.chunk import ChunkRepo
+from app.services.llm import get_llm_service
+from app.services.vector_store import get_vector_store
 
 # ─── Greeting detection ────────────────────────────────────────────────────────
 
@@ -33,7 +36,7 @@ class RAGService:
         self._vector_store = get_vector_store()
         self._chunk_repo = ChunkRepo()
 
-    async def get_context(self, notebook_id: str, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
+    async def get_context(self, notebook_id: str, query: str, top_k: int = 5) -> list[dict[str, Any]]:
         """
         Embed query, search Qdrant, and fetch full chunk text from Postgres.
         Returns a list of dicts with chunk context and metadata.
@@ -41,6 +44,7 @@ class RAGService:
         # 1. Embed query
         # We need to run it in a threadpool since it's blocking
         import asyncio
+
         from app.services.embedding import get_embedding_service
         
         embed_svc = get_embedding_service()
@@ -74,7 +78,7 @@ class RAGService:
     async def stream_chat(
         self,
         notebook_id: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         model: str | None = None,
     ) -> AsyncGenerator[str, None]:
         """
@@ -116,7 +120,7 @@ class RAGService:
 
         # Fetch source names for citation enrichment
         source_ids = list({ctx["source_id"] for ctx in contexts})
-        source_name_map: Dict[str, str] = {}
+        source_name_map: dict[str, str] = {}
         if source_ids:
             from app.repositories.source import SourceRepo
             source_repo = SourceRepo()

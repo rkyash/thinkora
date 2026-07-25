@@ -1,8 +1,11 @@
 import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+
 from app.models.notebook import Notebook
 from app.repositories.chat_session import ChatSessionRepo
+
 
 async def main():
     engine = create_async_engine("postgresql+asyncpg://thinkora:thinkora@localhost:5434/thinkora")

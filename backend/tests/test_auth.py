@@ -14,7 +14,7 @@ Covers:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import jwt
@@ -37,7 +37,6 @@ from app.services.auth import (
     update_password_by_email,
     verify_password,
 )
-
 
 # ─── _pre_hash Tests ─────────────────────────────────────────────
 
@@ -181,7 +180,7 @@ class TestJWTTokens:
 
         expired_payload = {
             "sub": "user-1",
-            "exp": datetime.now(timezone.utc) - timedelta(hours=1),
+            "exp": datetime.now(UTC) - timedelta(hours=1),
             "type": "access",
         }
         expired_token = jwt.encode(
@@ -194,7 +193,7 @@ class TestJWTTokens:
         """Token signed with wrong secret should fail."""
         payload = {
             "sub": "user-1",
-            "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+            "exp": datetime.now(UTC) + timedelta(hours=1),
             "type": "access",
         }
         bad_token = jwt.encode(
@@ -210,7 +209,7 @@ class TestJWTTokens:
         from app.config import settings
 
         payload = {
-            "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+            "exp": datetime.now(UTC) + timedelta(hours=1),
             "type": "access",
         }
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
@@ -273,7 +272,7 @@ class TestTokenBlacklist:
 
         expired_payload = {
             "sub": "user-1",
-            "exp": datetime.now(timezone.utc) - timedelta(hours=1),
+            "exp": datetime.now(UTC) - timedelta(hours=1),
             "type": "access",
         }
         expired_token = jwt.encode(
@@ -304,8 +303,8 @@ def _make_mock_user(
     user.email = email
     user.username = username
     user.is_active = is_active
-    user.created_at = datetime.now(timezone.utc)
-    user.updated_at = datetime.now(timezone.utc)
+    user.created_at = datetime.now(UTC)
+    user.updated_at = datetime.now(UTC)
     user.hashed_password = hash_password("testpassword123")
     return user
 
@@ -593,7 +592,7 @@ class TestRefreshTokens:
 
         expired_payload = {
             "sub": "user-1",
-            "exp": datetime.now(timezone.utc) - timedelta(hours=1),
+            "exp": datetime.now(UTC) - timedelta(hours=1),
             "type": "refresh",
         }
         expired_token = jwt.encode(

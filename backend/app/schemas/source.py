@@ -10,8 +10,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, HttpUrl, validator
 
-from app.core.constants import SourceType, SourceStatus
-
+from app.core.constants import SourceStatus, SourceType
 
 # ─── Request Schemas ──────────────────────────────────────────
 
@@ -45,7 +44,7 @@ class SourceTextRequest(BaseModel):
         max_length=100000,
         description="Text content to process",
     )
-    name: Optional[str] = Field(
+    name: str | None = Field(
         None,
         max_length=255,
         description="Name of the source",
@@ -60,14 +59,14 @@ class SourceResponse(BaseModel):
 
     id: UUID
     notebook_id: UUID
-    name: Optional[str] = None
+    name: str | None = None
     type: SourceType
     status: SourceStatus
-    file_path: Optional[str] = None
-    url: Optional[str] = None
-    char_count: Optional[int] = None
-    chunk_count: Optional[int] = None
-    error_message: Optional[str] = None
+    file_path: str | None = None
+    url: str | None = None
+    char_count: int | None = None
+    chunk_count: int | None = None
+    error_message: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -78,7 +77,7 @@ class SourceListResponse(BaseModel):
 
     id: UUID
     notebook_id: UUID
-    name: Optional[str] = None
+    name: str | None = None
     type: SourceType
     status: SourceStatus
     created_at: datetime

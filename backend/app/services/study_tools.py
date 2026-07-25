@@ -11,9 +11,9 @@ Architecture:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
-import asyncio
 from typing import Any
 
 import structlog
@@ -21,18 +21,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import Difficulty, GenerationType, QuestionType, TaskStatus
 from app.core.logging import logger
+from app.core.prompt_security import safe_user_block, sanitize_user_content
 from app.models.flashcard import Flashcard
-from app.models.quiz import Quiz, QuizQuestion
 from app.models.generation import Generation
+from app.models.quiz import Quiz, QuizQuestion
 from app.repositories import (
-    flashcard_repo,
-    quiz_repo,
     chunk_repo,
+    flashcard_repo,
     generation_repo,
+    quiz_repo,
     source_repo,
 )
 from app.services.llm import get_llm_service
-from app.core.prompt_security import sanitize_user_content, safe_user_block
 
 log: structlog.BoundLogger = structlog.get_logger(__name__)
 
@@ -370,8 +370,8 @@ class StudyToolsService:
                 }
             )
 
-        from app.repositories.base import GenericRepo
         from app.models.quiz import QuizQuestion as QuizQuestionModel
+        from app.repositories.base import GenericRepo
 
         class _QuizQuestionRepo(GenericRepo[QuizQuestionModel]):
             model = QuizQuestionModel

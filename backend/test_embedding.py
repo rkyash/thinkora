@@ -1,7 +1,10 @@
 import asyncio
+
 import litellm
-from app.config import settings
 from backend.app.schemas import response
+
+from app.config import settings
+
 
 async def main():
     try:

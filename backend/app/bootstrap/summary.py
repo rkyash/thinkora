@@ -2,8 +2,8 @@
 Startup summary — displays a formatted report of all services and their health.
 """
 
-from app.config import settings
 from app.bootstrap.worker import is_worker_running
+from app.config import settings
 
 
 def print_summary(health_results: dict[str, bool], migration_ok: bool, worker_ok: bool) -> str:

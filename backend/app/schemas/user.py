@@ -8,7 +8,6 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
-
 # ─── Request Schemas ──────────────────────────────────────────
 
 class UserCreate(BaseModel):

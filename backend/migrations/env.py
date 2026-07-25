@@ -11,10 +11,11 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from app.config import settings
+from app.database import Base, engine
+
 # Import all models so metadata is populated
 from app.models import *  # noqa: F401, F403
-from app.database import Base, engine
-from app.config import settings
 
 # Alembic Config object
 config = context.config

@@ -16,7 +16,6 @@ from celery.signals import worker_process_init
 from app.config import settings
 
 
-
 def create_celery_app() -> Celery:
     """
     Factory for the Celery application.

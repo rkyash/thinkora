@@ -26,7 +26,7 @@ import asyncio
 import json
 from collections.abc import AsyncIterator
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import redis.asyncio as aioredis
@@ -62,7 +62,7 @@ class ProgressEvent:
     pct: int = -1
     detail: dict[str, Any] = field(default_factory=dict)
     timestamp: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        default_factory=lambda: datetime.now(UTC).isoformat(),
     )
 
     def to_json(self) -> str:
@@ -206,7 +206,7 @@ async def subscribe(
                     ),
                     timeout=heartbeat_seconds + 1,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 message = None
 
             if message is None:

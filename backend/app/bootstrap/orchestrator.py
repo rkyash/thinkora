@@ -12,14 +12,14 @@ Called from the FastAPI lifespan. Handles:
 
 import os
 
-from app.core.logging import logger
 from app.bootstrap.config import BOOTSTRAP_CONFIG
 from app.bootstrap.detector import detect_environment
 from app.bootstrap.docker_manager import ensure_infrastructure
 from app.bootstrap.health import wait_for_all_services
 from app.bootstrap.migrations import run_migrations
-from app.bootstrap.worker import start_worker
 from app.bootstrap.summary import print_summary
+from app.bootstrap.worker import start_worker
+from app.core.logging import logger
 
 
 async def run_bootstrap() -> None:

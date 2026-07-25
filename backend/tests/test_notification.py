@@ -25,7 +25,6 @@ from app.services.notification import (
     subscribe,
 )
 
-
 # ─── ProgressEvent dataclass ──────────────────────────────────────
 
 

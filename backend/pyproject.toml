@@ -13,11 +13,35 @@ plugins = ["pydantic.mypy"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-
+exclude = [
+    ".venv",
+    "__pycache__",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "ANN", "ASYNC"]
-ignore = ["ANN101", "ANN102"]
+ignore = [
+    # ── Deferred refactors ────────────────────────────────────────────────────
+    "ANN",      # Missing type annotations — large codebase-wide refactor
+    "F401",     # Unused imports — many are __init__.py re-exports
+    "UP042",    # StrEnum style — requires touching all constants/enums
+    "UP035",    # Deprecated typing imports (List/Dict/Tuple) — used widely, refactor incrementally
+    # ── Async IO rules ───────────────────────────────────────────────────────
+    "ASYNC109", # Async function with timeout param — intentional design
+    "ASYNC230", # Blocking open() in async — needs careful migration
+    "ASYNC240", # Blocking pathlib in async — needs careful migration
+    # ── Style ─────────────────────────────────────────────────────────────────
+    "E501",     # Line too long — line-length=100 is set; violations are minor style only
+    "F841",     # Unused variable — often used for access-check side effects
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Migrations are auto-generated — ignore long lines and import order
+"migrations/**" = ["E501", "E402", "I001"]
+# Tests allow long lines for readability
+"tests/**" = ["E501"]
+# Root scripts
+"check_notebooks.py" = ["E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

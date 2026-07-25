@@ -21,7 +21,6 @@ from app.api.v1.events import router
 from app.models.user import User
 from app.services.notification import ProgressEvent
 
-
 # ─── Test app setup ───────────────────────────────────────────────
 
 def _create_test_app(mock_user=None):
@@ -107,7 +106,7 @@ class TestStreamEvents:
         app = _create_test_app(mock_user)
 
         async def mock_subscribe(resource_id, **kwargs):
-            yield f"data: {{}}\n\n"
+            yield "data: {}\n\n"
 
         with patch("app.api.v1.events.subscribe", mock_subscribe):
             client = TestClient(app)

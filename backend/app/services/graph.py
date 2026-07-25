@@ -12,21 +12,21 @@ from __future__ import annotations
 
 import json
 import math
-import re
 import random
+import re
 from typing import Any, TypedDict
 
 import structlog
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import GraphNodeType, MAX_GRAPH_NODES
+from app.core.constants import MAX_GRAPH_NODES, GraphNodeType
 from app.core.logging import logger
-from app.models.graph_node import GraphNode
+from app.core.prompt_security import sanitize_user_content
 from app.models.graph_edge import GraphEdge
+from app.models.graph_node import GraphNode
 from app.repositories.chunk import ChunkRepo
 from app.services.llm import get_llm_service
-from app.core.prompt_security import sanitize_user_content
 
 log: structlog.BoundLogger = structlog.get_logger(__name__)
 

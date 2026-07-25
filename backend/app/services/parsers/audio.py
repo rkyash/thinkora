@@ -23,7 +23,7 @@ _MODEL_SIZE = "tiny"
 _MODEL_PATH_OR_REPO = _MODEL_SIZE
 
 # Global model instance to avoid reloading
-_model: Optional[WhisperModel] = None
+_model: WhisperModel | None = None
 
 
 def _get_model() -> WhisperModel:

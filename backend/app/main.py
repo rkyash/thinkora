@@ -3,8 +3,9 @@ Thinkora — FastAPI application factory.
 Mounts routers, registers middleware, configures lifespan events.
 """
 
-from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from datetime import UTC
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -13,8 +14,8 @@ from starlette.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.core.constants import API_V1_PREFIX, APP_NAME
 from app.core.exceptions import AppError
-from app.events.startup import on_startup
 from app.events.shutdown import on_shutdown
+from app.events.startup import on_startup
 from app.middlewares.cors import CORS_CONFIG
 from app.middlewares.request_id import RequestIDMiddleware
 from app.middlewares.timing import TimingMiddleware
@@ -93,7 +94,7 @@ def create_app() -> FastAPI:
             "status": "ok",
             "service": APP_NAME,
             "version": "0.1.0",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     @application.get("/readyz", tags=["Health"])
@@ -104,14 +105,16 @@ def create_app() -> FastAPI:
         Returns 503 when any dependency is unhealthy.
         """
         import asyncio
+
         from fastapi.responses import JSONResponse
 
         deps: dict[str, str] = {}
 
         # ── PostgreSQL ────────────────────────────────────────────
         try:
-            from app.database import async_session_factory
             from sqlalchemy import text as sa_text
+
+            from app.database import async_session_factory
             async with async_session_factory() as session:
                 await session.execute(sa_text("SELECT 1"))
             deps["postgres"] = "ok"
@@ -120,8 +123,9 @@ def create_app() -> FastAPI:
 
         # ── Redis ─────────────────────────────────────────────────
         try:
-            from app.config import settings
             import redis.asyncio as aioredis
+
+            from app.config import settings
             r = aioredis.from_url(settings.REDIS_URL, socket_connect_timeout=2)
             await r.ping()
             await r.aclose()
@@ -131,8 +135,9 @@ def create_app() -> FastAPI:
 
         # ── Qdrant ────────────────────────────────────────────────
         try:
-            from app.config import settings
             from qdrant_client import AsyncQdrantClient
+
+            from app.config import settings
             qdrant_url = f"http://{settings.QDRANT_HOST}:{settings.QDRANT_PORT}"
             qc = AsyncQdrantClient(url=qdrant_url, timeout=3)
             await qc.get_collections()

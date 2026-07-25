@@ -18,12 +18,12 @@ import structlog
 from app.config import settings as env_settings
 from app.repositories.app_settings import app_settings_repo
 from app.schemas.settings import (
+    _SECRET_KEYS,
     MASK,
     ProviderInfo,
     SettingKey,
     SettingResponse,
     SettingsResponse,
-    _SECRET_KEYS,
     is_secret,
     mask_value,
 )

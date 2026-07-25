@@ -4,8 +4,8 @@ Audio/Podcast API — /api/v1/notebooks/{notebook_id}/audio
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, status, Request
-from fastapi.responses import Response, FileResponse
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import GenerationType, TaskStatus
@@ -16,7 +16,7 @@ from app.repositories import generation_repo, notebook_repo, workspace_repo
 from app.schemas.audio import AudioGenerateRequest, AudioStatusResponse
 from app.schemas.generation import GenerationResponse
 from app.schemas.response import ApiResponse, ok
-from app.services.storage import get_storage, LocalStorage
+from app.services.storage import LocalStorage, get_storage
 from app.workers.audio_tasks import generate_podcast_task
 
 router = APIRouter(tags=["Audio"])

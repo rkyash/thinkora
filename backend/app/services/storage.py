@@ -19,7 +19,6 @@ from app.config import settings
 from app.core.exceptions import NotFoundError, ValidationError
 from app.core.logging import logger
 
-
 # ─── Storage Protocol ────────────────────────────────────────────────
 
 
