@@ -11,7 +11,6 @@ from pydantic import BaseModel
 
 from app.core.constants import GenerationType, TaskStatus
 
-
 # ─── Request schemas ─────────────────────────────────────────────────────────
 
 

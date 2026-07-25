@@ -1,12 +1,14 @@
 import json
 import re
-from typing import AsyncGenerator, Dict, List, Any
+from typing import Any, AsyncGenerator, Dict, List
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.services.llm import get_llm_service
-from app.services.vector_store import get_vector_store
-from app.repositories.chunk import ChunkRepo
+
 from app.core.logging import logger
 from app.core.prompt_security import sanitize_user_content
+from app.repositories.chunk import ChunkRepo
+from app.services.llm import get_llm_service
+from app.services.vector_store import get_vector_store
 
 # ─── Greeting detection ────────────────────────────────────────────────────────
 
@@ -41,6 +43,7 @@ class RAGService:
         # 1. Embed query
         # We need to run it in a threadpool since it's blocking
         import asyncio
+
         from app.services.embedding import get_embedding_service
         
         embed_svc = get_embedding_service()

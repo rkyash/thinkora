@@ -7,10 +7,11 @@ get_notebook_or_404: validates notebook exists and user has access
 
 from __future__ import annotations
 
-from fastapi import Depends, Header, Query
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
+
+from fastapi import Depends, Header, Query
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import AuthenticationError, NotFoundError, PermissionDeniedError
 from app.database import get_async_session

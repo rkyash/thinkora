@@ -8,26 +8,35 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status, UploadFile, File
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user, get_db
 from app.core.exceptions import NotFoundError, PermissionDeniedError
-from app.models.user import User
 from app.models.source import Source
-from app.repositories import source_repo, notebook_repo, workspace_repo, chunk_repo
-from app.services.vector_store import get_vector_store
+from app.models.user import User
+from app.repositories import chunk_repo, notebook_repo, source_repo, workspace_repo
+from app.schemas.pagination import OffsetParams, get_offset_params
+from app.schemas.response import ApiResponse, PaginatedResponse
 from app.schemas.source import (
-    SourceResponse,
     SourceListResponse,
+    SourceResponse,
+    SourceTextRequest,
     SourceUrlRequest,
     SourceYoutubeRequest,
-    SourceTextRequest,
 )
 from app.services.storage import get_storage
+from app.services.vector_store import get_vector_store
 from app.workers.ingestion_tasks import ingest_source_task
-from app.schemas.response import ApiResponse, PaginatedResponse
-from app.schemas.pagination import OffsetParams, get_offset_params
 
 router = APIRouter(prefix="/notebooks/{notebook_id}/sources", tags=["Sources"])
 

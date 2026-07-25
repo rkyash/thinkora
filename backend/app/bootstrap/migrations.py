@@ -2,11 +2,11 @@
 Automatic database migration — detects pending migrations and applies them.
 """
 
-import subprocess
 import os
+import subprocess
 
-from app.core.logging import logger
 from app.bootstrap.detector import _find_project_root
+from app.core.logging import logger
 
 
 def needs_migration() -> bool:

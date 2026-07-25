@@ -2,14 +2,13 @@
 Celery worker management — start/stop worker as a background subprocess.
 """
 
+import atexit
+import os
 import subprocess
 import sys
-import os
-import atexit
 
 from app.config import settings
 from app.core.logging import logger
-
 
 _worker_process: subprocess.Popen | None = None
 

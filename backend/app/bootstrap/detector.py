@@ -4,9 +4,9 @@ and determines what actions are needed.
 """
 
 import json
+import os
 import shutil
 import subprocess
-import os
 from dataclasses import dataclass, field
 
 from app.core.logging import logger

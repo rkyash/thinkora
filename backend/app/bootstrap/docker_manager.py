@@ -4,8 +4,8 @@ Docker Compose management — start, build, and manage infrastructure containers
 
 import subprocess
 
-from app.core.logging import logger
 from app.bootstrap.detector import EnvironmentState
+from app.core.logging import logger
 
 
 def ensure_infrastructure(

@@ -14,8 +14,8 @@ from __future__ import annotations
 import asyncio
 import json
 import re
-import subprocess
 import shutil
+import subprocess
 from urllib.parse import parse_qs, urlparse
 
 from app.core.constants import SourceType
@@ -277,8 +277,8 @@ class YoutubeParser(BaseParser):
         video_id: str,
     ) -> list[dict[str, object]] | None:
         """Download subtitle file directly via yt-dlp to a temp location."""
-        import tempfile
         import os
+        import tempfile
 
         url = f"https://www.youtube.com/watch?v={video_id}"
 

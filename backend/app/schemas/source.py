@@ -10,8 +10,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, HttpUrl, validator
 
-from app.core.constants import SourceType, SourceStatus
-
+from app.core.constants import SourceStatus, SourceType
 
 # ─── Request Schemas ──────────────────────────────────────────
 

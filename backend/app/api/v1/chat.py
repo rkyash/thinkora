@@ -1,24 +1,25 @@
 import json
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi.responses import StreamingResponse
 from uuid import UUID
 
-from app.core.dependencies import get_db, get_current_user, get_current_user_for_sse
-from app.repositories.chat_session import ChatSessionRepo
-from app.repositories.message import MessageRepo
-from app.repositories import notebook_repo, workspace_repo
-from app.services.rag import RAGService
-from app.schemas.response import ApiError, ApiResponse, PaginatedResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import StreamingResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.dependencies import get_current_user, get_current_user_for_sse, get_db
 from app.core.exceptions import NotFoundError, PermissionDeniedError
 from app.models.chat_session import ChatSession
 from app.models.message import ChatMessage
 from app.models.notebook import Notebook
-from app.models.workspace import Workspace
 from app.models.user import User
-from app.schemas.chat import ChatSessionCreate, ChatSessionResponse, ChatMessageResponse
+from app.models.workspace import Workspace
+from app.repositories import notebook_repo, workspace_repo
+from app.repositories.chat_session import ChatSessionRepo
+from app.repositories.message import MessageRepo
+from app.schemas.chat import ChatMessageResponse, ChatSessionCreate, ChatSessionResponse
 from app.schemas.pagination import OffsetParams, get_offset_params
+from app.schemas.response import ApiError, ApiResponse, PaginatedResponse
+from app.services.rag import RAGService
 
 router = APIRouter(tags=["Chat"])
 session_repo = ChatSessionRepo()

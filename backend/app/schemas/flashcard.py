@@ -10,7 +10,6 @@ from pydantic import BaseModel
 
 from app.core.constants import Difficulty
 
-
 # ─── Request schemas ─────────────────────────────────────────────────────────
 
 

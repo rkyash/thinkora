@@ -1,6 +1,8 @@
 import datetime
 from typing import List, Optional
+
 from pydantic import BaseModel, Field
+
 
 class ChatMessage(BaseModel):
     role: str = Field(..., description="Role of the sender (user, assistant, system)")

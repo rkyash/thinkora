@@ -18,14 +18,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.dependencies import get_current_user, get_db
 from app.core.exceptions import NotFoundError, PermissionDeniedError
 from app.models.user import User
-from app.repositories import quiz_repo, notebook_repo, workspace_repo
+from app.repositories import notebook_repo, quiz_repo, workspace_repo
+from app.schemas.pagination import OffsetParams, get_offset_params
 from app.schemas.quiz import (
     QuizDetailResponse,
     QuizGenerateRequest,
     QuizQuestionResponse,
     QuizResponse,
 )
-from app.schemas.pagination import OffsetParams, get_offset_params
 from app.schemas.response import ApiResponse, PaginatedResponse, ok, paginated
 from app.services.study_tools import StudyToolsService
 
