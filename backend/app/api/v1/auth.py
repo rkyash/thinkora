@@ -61,6 +61,7 @@ async def refresh(authorization: str = Header(default="")):
     """Refresh access token using a valid refresh token."""
     if not authorization.startswith("Bearer "):
         from app.core.exceptions import AuthenticationError
+
         raise AuthenticationError("Missing refresh token")
 
     refresh_token = authorization.removeprefix("Bearer ").strip()
@@ -92,6 +93,7 @@ async def me(current_user: User = Depends(get_current_user)):
         "success": True,
         "data": UserResponse.model_validate(current_user),
     }
+
 
 @router.post("/update-password", response_model=ApiResponse)
 async def update_password(

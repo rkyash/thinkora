@@ -60,16 +60,22 @@ async def run_bootstrap() -> None:
             timeout=config.docker_compose_timeout,
         )
         if not infra_ok:
-            logger.error("bootstrap_infra_failed", msg=(
-                "Could not start infrastructure. Please start services manually:\n"
-                "  docker compose -f docker-compose.dev.yml up -d"
-            ))
+            logger.error(
+                "bootstrap_infra_failed",
+                msg=(
+                    "Could not start infrastructure. Please start services manually:\n"
+                    "  docker compose -f docker-compose.dev.yml up -d"
+                ),
+            )
             # Don't abort — let health checks determine the outcome
     elif not state.docker_installed:
-        logger.warning("bootstrap_no_docker_available", msg=(
-            "Docker is not available. Infrastructure services must be running externally.\n"
-            "Required: PostgreSQL, Redis, Qdrant"
-        ))
+        logger.warning(
+            "bootstrap_no_docker_available",
+            msg=(
+                "Docker is not available. Infrastructure services must be running externally.\n"
+                "Required: PostgreSQL, Redis, Qdrant"
+            ),
+        )
 
     # ─── Step 3: Wait for service health checks ──────────────
     health_results = await wait_for_all_services(
@@ -91,7 +97,9 @@ async def run_bootstrap() -> None:
     if health_results.get("postgres", False) and config.auto_migrate:
         migration_ok = run_migrations(timeout=config.migration_timeout)
     elif not health_results.get("postgres", False):
-        logger.warning("bootstrap_skip_migrations", msg="Skipping migrations — database not available")
+        logger.warning(
+            "bootstrap_skip_migrations", msg="Skipping migrations — database not available"
+        )
 
     # ─── Step 5: Start Celery worker ─────────────────────────
     worker_ok = False

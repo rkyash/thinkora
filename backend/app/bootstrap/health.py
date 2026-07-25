@@ -83,10 +83,11 @@ async def _check_redis() -> bool:
     """Check Redis connectivity."""
     try:
         import redis.asyncio as aioredis
+
         r = aioredis.from_url(settings.REDIS_URL, socket_connect_timeout=3)
         pong = await r.ping()
         await r.aclose()
-        return pong
+        return bool(pong)
     except Exception:
         return False
 
@@ -95,6 +96,7 @@ async def _check_qdrant() -> bool:
     """Check Qdrant connectivity."""
     try:
         from qdrant_client import AsyncQdrantClient
+
         url = f"http://{settings.QDRANT_HOST}:{settings.QDRANT_PORT}"
         client = AsyncQdrantClient(url=url, timeout=5)
         await client.get_collections()

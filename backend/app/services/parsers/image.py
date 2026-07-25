@@ -22,6 +22,7 @@ from app.services.parsers import BaseParser  # noqa: E402
 # Optional OCR dependency
 try:
     import pytesseract
+
     OCR_AVAILABLE = True
 except ImportError:
     OCR_AVAILABLE = False
@@ -54,12 +55,12 @@ class ImageParser(BaseParser):
         try:
             # Open image from bytes
             image = Image.open(io.BytesIO(data))
-            
+
             # Get basic image info
             width, height = image.size
             format_name = image.format or "UNKNOWN"
             mode = image.mode
-            
+
             logger.info(
                 "image_info",
                 filename=filename,
@@ -73,16 +74,16 @@ class ImageParser(BaseParser):
             if OCR_AVAILABLE:
                 try:
                     # Configure tesseract for better accuracy
-                    custom_config = r'--oem 3 --psm 6'
+                    custom_config = r"--oem 3 --psm 6"
                     text = pytesseract.image_to_string(
-                        image, 
+                        image,
                         config=custom_config,
-                        lang='eng'  # English; could be made configurable
+                        lang="eng",  # English; could be made configurable
                     )
-                    
+
                     # Clean up the text
-                    text = text.strip()
-                    
+                    text = str(text).strip()
+
                     if text:
                         logger.info(
                             "image_ocr_success",
@@ -96,7 +97,7 @@ class ImageParser(BaseParser):
                             filename=filename,
                         )
                         # Fall back to metadata if OCR found no text
-                        
+
                 except Exception as ocr_error:
                     logger.warning(
                         "image_ocr_failed",
@@ -112,15 +113,15 @@ class ImageParser(BaseParser):
                 f"Dimensions: {width}×{height} pixels",
                 f"Color mode: {mode}",
             ]
-            
+
             # Add file size info
             size_kb = len(data) / 1024
             if size_kb < 1024:
                 size_str = f"{size_kb:.1f} KB"
             else:
-                size_str = f"{size_kb/1024:.1f} MB"
+                size_str = f"{size_kb / 1024:.1f} MB"
             description_parts.append(f"File size: {size_str}")
-            
+
             # Add note about OCR availability
             if not OCR_AVAILABLE:
                 description_parts.append(
@@ -138,7 +139,7 @@ class ImageParser(BaseParser):
                 filename=filename,
                 description_length=len(description),
             )
-            
+
             return description
 
         except Exception as exc:
@@ -155,8 +156,4 @@ class ImageParser(BaseParser):
                     error=str(exc),
                     exc_info=True,
                 )
-                raise ValidationError(
-                    f"Failed to process image '{filename}': {str(exc)}"
-                ) from exc
-
-
+                raise ValidationError(f"Failed to process image '{filename}': {str(exc)}") from exc

@@ -64,6 +64,4 @@ class MarkdownParser(BaseParser):
             try:
                 return data.decode("latin-1")
             except UnicodeDecodeError as exc:
-                raise ValidationError(
-                    f"Cannot decode file '{filename}': {exc}"
-                ) from exc
+                raise ValidationError(f"Cannot decode file '{filename}': {exc}") from exc

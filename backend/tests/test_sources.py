@@ -30,7 +30,7 @@ def _create_test_app(mock_user=None):
     """Create a minimal FastAPI app with the sources router."""
     app = FastAPI()
     app.include_router(router, prefix="/api/v1")
-    
+
     if mock_user is None:
         mock_user = User(
             id=uuid.uuid4(),
@@ -38,17 +38,18 @@ def _create_test_app(mock_user=None):
             hashed_password="fake",
             is_active=True,
         )
-        
+
     async def override_get_user():
         return mock_user
-        
+
     async def override_get_db():
         yield AsyncMock()
-        
+
     app.dependency_overrides[get_current_user] = override_get_user
     app.dependency_overrides[get_db] = override_get_db
-    
+
     return app, mock_user
+
 
 @pytest.fixture
 def client_and_user():
@@ -56,20 +57,22 @@ def client_and_user():
     client = TestClient(app)
     return client, user
 
+
 @pytest.fixture
 def mock_deps():
-    with patch("app.api.v1.sources.workspace_repo.get_or_404") as mock_workspace_get, \
-         patch("app.api.v1.sources.notebook_repo.get_or_404") as mock_notebook_get, \
-         patch("app.api.v1.sources.source_repo.create") as mock_source_create, \
-         patch("app.api.v1.sources.source_repo.list_by_notebook") as mock_source_list, \
-         patch("app.api.v1.sources.source_repo.count", new_callable=AsyncMock) as mock_source_count, \
-         patch("app.api.v1.sources.source_repo.get_or_404") as mock_source_get, \
-         patch("app.api.v1.sources.source_repo.delete") as mock_source_delete, \
-         patch("app.api.v1.sources.get_storage") as mock_get_storage, \
-         patch("app.api.v1.sources.ingest_source_task") as mock_ingest_task, \
-         patch("app.api.v1.sources.chunk_repo.delete_by_source") as mock_chunk_delete, \
-         patch("app.api.v1.sources.get_vector_store") as mock_get_vector_store:
-
+    with (
+        patch("app.api.v1.sources.workspace_repo.get_or_404") as mock_workspace_get,
+        patch("app.api.v1.sources.notebook_repo.get_or_404") as mock_notebook_get,
+        patch("app.api.v1.sources.source_repo.create") as mock_source_create,
+        patch("app.api.v1.sources.source_repo.list_by_notebook") as mock_source_list,
+        patch("app.api.v1.sources.source_repo.count", new_callable=AsyncMock) as mock_source_count,
+        patch("app.api.v1.sources.source_repo.get_or_404") as mock_source_get,
+        patch("app.api.v1.sources.source_repo.delete") as mock_source_delete,
+        patch("app.api.v1.sources.get_storage") as mock_get_storage,
+        patch("app.api.v1.sources.ingest_source_task") as mock_ingest_task,
+        patch("app.api.v1.sources.chunk_repo.delete_by_source") as mock_chunk_delete,
+        patch("app.api.v1.sources.get_vector_store") as mock_get_vector_store,
+    ):
         mock_workspace_get.return_value = MagicMock(owner_id=None)  # We'll set this in the test
         mock_notebook_get.return_value = MagicMock(workspace_id="ws_id", id="nb_id")
         mock_source_count.return_value = 1  # Return an int so has_next comparison works
@@ -92,8 +95,9 @@ def mock_deps():
             "storage": mock_storage,
             "ingest_task": mock_ingest_task,
             "chunk_delete": mock_chunk_delete,
-            "vector_store": mock_vector_store
+            "vector_store": mock_vector_store,
         }
+
 
 def get_mock_source():
     import uuid
@@ -101,6 +105,7 @@ def get_mock_source():
 
     from app.core.constants import SourceStatus, SourceType
     from app.models.source import Source
+
     return Source(
         id=uuid.uuid4(),
         notebook_id=uuid.uuid4(),
@@ -110,20 +115,20 @@ def get_mock_source():
         created_at=datetime.now(UTC),
     )
 
-class TestSourcesAPI:
 
+class TestSourcesAPI:
     def test_upload_source(self, client_and_user, mock_deps):
         client, user = client_and_user
         mock_deps["workspace_get"].return_value.owner_id = user.id
-        
+
         mock_source = get_mock_source()
         mock_deps["source_create"].return_value = mock_source
-        
+
         response = client.post(
             "/api/v1/notebooks/nb_id/sources/upload?workspace_id=ws_id",
-            files={"file": ("test.pdf", b"pdf content", "application/pdf")}
+            files={"file": ("test.pdf", b"pdf content", "application/pdf")},
         )
-        
+
         assert response.status_code == 201
         assert response.json()["success"] is True
         mock_deps["storage"].save.assert_called_once()
@@ -133,15 +138,15 @@ class TestSourcesAPI:
     def test_create_url_source(self, client_and_user, mock_deps):
         client, user = client_and_user
         mock_deps["workspace_get"].return_value.owner_id = user.id
-        
+
         mock_source = get_mock_source()
         mock_deps["source_create"].return_value = mock_source
-        
+
         response = client.post(
             "/api/v1/notebooks/nb_id/sources/url?workspace_id=ws_id",
-            json={"name": "My URL", "url": "https://example.com"}
+            json={"name": "My URL", "url": "https://example.com"},
         )
-        
+
         assert response.status_code == 201
         assert response.json()["success"] is True
         mock_deps["source_create"].assert_called_once()
@@ -150,15 +155,15 @@ class TestSourcesAPI:
     def test_create_youtube_source(self, client_and_user, mock_deps):
         client, user = client_and_user
         mock_deps["workspace_get"].return_value.owner_id = user.id
-        
+
         mock_source = get_mock_source()
         mock_deps["source_create"].return_value = mock_source
-        
+
         response = client.post(
             "/api/v1/notebooks/nb_id/sources/youtube?workspace_id=ws_id",
-            json={"name": "My YT Video", "url": "https://youtube.com/watch?v=123"}
+            json={"name": "My YT Video", "url": "https://youtube.com/watch?v=123"},
         )
-        
+
         assert response.status_code == 201
         assert response.json()["success"] is True
         mock_deps["source_create"].assert_called_once()
@@ -167,15 +172,15 @@ class TestSourcesAPI:
     def test_create_text_source(self, client_and_user, mock_deps):
         client, user = client_and_user
         mock_deps["workspace_get"].return_value.owner_id = user.id
-        
+
         mock_source = get_mock_source()
         mock_deps["source_create"].return_value = mock_source
-        
+
         response = client.post(
             "/api/v1/notebooks/nb_id/sources/text?workspace_id=ws_id",
-            json={"name": "My Note", "content": "Hello World"}
+            json={"name": "My Note", "content": "Hello World"},
         )
-        
+
         assert response.status_code == 201
         assert response.json()["success"] is True
         mock_deps["storage"].save.assert_called_once()
@@ -185,14 +190,14 @@ class TestSourcesAPI:
     def test_list_sources(self, client_and_user, mock_deps):
         client, user = client_and_user
         mock_deps["workspace_get"].return_value.owner_id = user.id
-        
+
         mock_source = get_mock_source()
         mock_deps["source_list"].return_value = [mock_source]
-        
+
         response = client.get(
             "/api/v1/notebooks/nb_id/sources/?workspace_id=ws_id",
         )
-        
+
         assert response.status_code == 200
         assert response.json()["success"] is True
         assert len(response.json()["data"]) == 1
@@ -200,15 +205,17 @@ class TestSourcesAPI:
     def test_get_source(self, client_and_user, mock_deps):
         client, user = client_and_user
         mock_deps["workspace_get"].return_value.owner_id = user.id
-        
+
         mock_source = get_mock_source()
-        mock_deps["notebook_get"].return_value = MagicMock(workspace_id="ws_id", id=mock_source.notebook_id)
+        mock_deps["notebook_get"].return_value = MagicMock(
+            workspace_id="ws_id", id=mock_source.notebook_id
+        )
         mock_deps["source_get"].return_value = mock_source
-        
+
         response = client.get(
             f"/api/v1/notebooks/{mock_source.notebook_id}/sources/{mock_source.id}?workspace_id=ws_id",
         )
-        
+
         assert response.status_code == 200
         assert response.json()["success"] is True
 
@@ -217,7 +224,9 @@ class TestSourcesAPI:
         mock_deps["workspace_get"].return_value.owner_id = user.id
 
         mock_source = get_mock_source()
-        mock_deps["notebook_get"].return_value = MagicMock(workspace_id="ws_id", id=mock_source.notebook_id)
+        mock_deps["notebook_get"].return_value = MagicMock(
+            workspace_id="ws_id", id=mock_source.notebook_id
+        )
         mock_source.file_path = "path"
         mock_deps["source_get"].return_value = mock_source
 

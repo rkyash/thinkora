@@ -2,12 +2,19 @@
 GraphNode model — knowledge graph entity nodes.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Enum, Float, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.constants import GraphNodeType
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.notebook import Notebook
 
 
 class GraphNode(Base):
@@ -24,7 +31,7 @@ class GraphNode(Base):
     y_pos: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     # Relationships
-    notebook: Mapped["Notebook"] = relationship(back_populates="graph_nodes")  # noqa: F821
+    notebook: Mapped[Notebook] = relationship(back_populates="graph_nodes")  # noqa: F821
 
     def __repr__(self) -> str:
         return f"<GraphNode {self.label} ({self.type.value})>"

@@ -2,7 +2,10 @@
 Source model — uploaded documents, URLs, YouTube links.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -10,6 +13,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.constants import SourceStatus, SourceType
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.chunk import DocumentChunk
+    from app.models.notebook import Notebook
 
 
 class Source(Base):
@@ -28,13 +35,11 @@ class Source(Base):
     char_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     chunk_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    notebook: Mapped["Notebook"] = relationship(back_populates="sources")  # noqa: F821
-    chunks: Mapped[list["DocumentChunk"]] = relationship(  # noqa: F821
+    notebook: Mapped[Notebook] = relationship(back_populates="sources")  # noqa: F821
+    chunks: Mapped[list[DocumentChunk]] = relationship(  # noqa: F821
         back_populates="source", cascade="all, delete-orphan"
     )
 

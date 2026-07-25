@@ -135,7 +135,7 @@ async def publish_event(
         pct=event.pct,
         receivers=num_receivers,
     )
-    return num_receivers
+    return int(num_receivers)
 
 
 async def publish_event_sync(

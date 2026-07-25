@@ -80,26 +80,26 @@ class SearchService:
         semantic_task = asyncio.create_task(
             self._semantic_search(query, notebook_id, semantic_top_k)
         )
-        fts_task = asyncio.create_task(
-            self._full_text_search(query, notebook_id, fts_top_k)
-        )
+        fts_task = asyncio.create_task(self._full_text_search(query, notebook_id, fts_top_k))
 
+        semantic_results: list[dict[str, Any]] | BaseException
+        fts_results: list[dict[str, Any]] | BaseException
         semantic_results, fts_results = await asyncio.gather(
             semantic_task, fts_task, return_exceptions=True
         )
 
         # Handle individual failures gracefully
-        if isinstance(semantic_results, Exception):
+        if isinstance(semantic_results, BaseException):
             log.warning("semantic_search_failed", error=str(semantic_results))
             semantic_results = []
-        if isinstance(fts_results, Exception):
+        if isinstance(fts_results, BaseException):
             log.warning("fts_search_failed", error=str(fts_results))
             fts_results = []
 
         # Merge via RRF
         merged = _rrf_merge(
-            semantic_results,  # type: ignore[arg-type]
-            fts_results,  # type: ignore[arg-type]
+            semantic_results,
+            fts_results,
         )
 
         # Enrich with source metadata
@@ -107,7 +107,7 @@ class SearchService:
 
         # Apply pagination
         total = len(enriched)
-        page_items = enriched[offset: offset + limit]
+        page_items = enriched[offset : offset + limit]
 
         return {
             "query": query,
@@ -184,6 +184,7 @@ class SearchService:
         chunk_map_by_qdrant: dict[str, DocumentChunk] = {}
         if qdrant_ids:
             from app.repositories.chunk import ChunkRepo
+
             cr = ChunkRepo()
             chunks = await cr.get_by_qdrant_ids(self._db, qdrant_ids)
             chunk_map_by_qdrant = {str(c.qdrant_point_id): c for c in chunks}
@@ -210,23 +211,23 @@ class SearchService:
 
         enriched: list[dict[str, Any]] = []
         for item in merged:
-            chunk: DocumentChunk | None = None
+            resolved_chunk: DocumentChunk | None = None
             if item.get("qdrant_id"):
-                chunk = chunk_map_by_qdrant.get(item["qdrant_id"])
+                resolved_chunk = chunk_map_by_qdrant.get(item["qdrant_id"])
             elif item.get("chunk_id"):
-                chunk = chunk_map_by_id.get(item["chunk_id"])
+                resolved_chunk = chunk_map_by_id.get(item["chunk_id"])
 
-            if chunk is None:
+            if resolved_chunk is None:
                 continue
 
-            source = source_map.get(str(chunk.source_id))
+            source = source_map.get(str(resolved_chunk.source_id))
             enriched.append(
                 {
-                    "chunk_id": str(chunk.id),
-                    "source_id": str(chunk.source_id),
-                    "notebook_id": str(chunk.notebook_id),
+                    "chunk_id": str(resolved_chunk.id),
+                    "source_id": str(resolved_chunk.source_id),
+                    "notebook_id": str(resolved_chunk.notebook_id),
                     "source_name": source.name if source else "",
-                    "content": chunk.content or "",
+                    "content": resolved_chunk.content or "",
                     "score": item["rrf_score"],
                     "rank_method": "rrf",
                 }

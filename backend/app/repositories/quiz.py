@@ -27,8 +27,6 @@ class QuizRepo(GenericRepo[Quiz]):
     async def get_with_questions(self, db: AsyncSession, quiz_id: str) -> Quiz | None:
         """Get a quiz with all its questions eagerly loaded."""
         result = await db.execute(
-            select(Quiz)
-            .where(Quiz.id == quiz_id)
-            .options(selectinload(Quiz.questions))
+            select(Quiz).where(Quiz.id == quiz_id).options(selectinload(Quiz.questions))
         )
         return result.scalar_one_or_none()

@@ -137,7 +137,7 @@ class LocalStorage:
             path=str(path),
             size_bytes=len(data),
         )
-        return data
+        return bytes(data)
 
     async def delete(self, path: str) -> None:
         """Delete the file at *path*. No-op if it doesn't exist."""
@@ -191,7 +191,7 @@ class LocalStorage:
         if not target.is_file():
             raise NotFoundError("File", str(path))
         stat = await aiofiles.os.stat(target)
-        return stat.st_size
+        return int(stat.st_size)
 
 
 # ─── Factory ─────────────────────────────────────────────────────────
@@ -228,10 +228,7 @@ def get_storage() -> StorageBackend:
             "Set STORAGE_BACKEND=local in your .env file."
         )
     else:
-        raise ValueError(
-            f"Unknown STORAGE_BACKEND: '{backend}'. "
-            f"Supported values: 'local', 's3'."
-        )
+        raise ValueError(f"Unknown STORAGE_BACKEND: '{backend}'. Supported values: 'local', 's3'.")
 
     return _backend_instance
 

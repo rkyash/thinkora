@@ -198,7 +198,6 @@ class VectorStoreService:
         )
         return results
 
-
     async def delete_by_source(self, notebook_id: str, source_id: str) -> None:
         """Delete all points belonging to a specific source from the collection.
 

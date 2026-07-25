@@ -49,9 +49,7 @@ class PptxParser(BaseParser):
             prs = Presentation(io.BytesIO(data))
         except Exception as exc:
             logger.error("pptx_open_failed", filename=filename, error=str(exc))
-            raise ValidationError(
-                f"Failed to open PPTX file '{filename}': {exc}"
-            ) from exc
+            raise ValidationError(f"Failed to open PPTX file '{filename}': {exc}") from exc
 
         sections: list[str] = []
 

@@ -47,7 +47,7 @@ def validate_url_ssrf(url: str) -> str:
 
     # Check against blocked ranges
     for network in BLOCKED_NETWORKS:
-        if ip_addr in network:
+        if ip_addr in network:  # type: ignore[operator]
             raise SSRFError()
 
     return url

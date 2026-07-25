@@ -11,6 +11,8 @@ Endpoints:
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,7 +49,7 @@ def _svc(db: AsyncSession) -> SettingsService:
 async def get_settings(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
-) -> ApiResponse[SettingsResponse]:
+) -> dict[str, Any]:
     """
     Return all configurable settings with API keys masked.
     Includes provider status (is_configured) for each LLM provider.
@@ -64,7 +66,7 @@ async def bulk_update_settings(
     payload: BulkSettingsUpdate,
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
-) -> ApiResponse[list[SettingResponse]]:
+) -> dict[str, Any]:
     """
     Update multiple settings at once.
     Unknown keys are silently ignored.
@@ -83,7 +85,7 @@ async def update_setting(
     payload: SettingUpdate,
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
-) -> ApiResponse[SettingResponse]:
+) -> dict[str, Any]:
     """
     Update a single setting by key.
     Pass an empty string to clear the value.
@@ -91,7 +93,7 @@ async def update_setting(
     try:
         result = await _svc(db).upsert(key, payload.value)
     except ValueError as exc:
-        raise AppError(str(exc), status_code=400, code="INVALID_SETTING_KEY") from exc
+        raise AppError(status_code=400, error=str(exc), code="INVALID_SETTING_KEY") from exc
     return ok(result, f"Setting '{key}' updated")
 
 
@@ -104,9 +106,10 @@ async def clear_setting(
     key: str,
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
-) -> ApiResponse[None]:
+) -> dict[str, Any]:
     """Clear/reset a setting to its environment variable default."""
     from app.repositories.app_settings import app_settings_repo
+
     deleted = await app_settings_repo.delete(db, key)
     msg = f"Setting '{key}' cleared" if deleted else f"Setting '{key}' was not set"
     return ok(None, msg)
@@ -120,7 +123,7 @@ async def test_provider(
     provider_id: str,
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
-) -> ApiResponse[ProviderTestResponse]:
+) -> dict[str, Any]:
     """
     Test connectivity to a specific LLM provider.
     Sends a minimal chat request with max_tokens=5 to verify the API key works.
@@ -131,6 +134,7 @@ async def test_provider(
         "Test complete",
     )
 
+
 @router.get(
     "/settings/models/{provider_id}",
     response_model=ApiResponse[list[str]],
@@ -139,7 +143,7 @@ async def fetch_models(
     provider_id: str,
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
-) -> ApiResponse[list[str]]:
+) -> dict[str, Any]:
     """
     Fetch available models dynamically from the provider API.
     Used for local models (Ollama) or custom OpenAI-compatible proxies.

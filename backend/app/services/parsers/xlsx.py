@@ -95,9 +95,7 @@ class XlsxParser(BaseParser):
                 data_only=True,
             )
         except Exception as exc:
-            raise ValidationError(
-                f"Failed to open XLSX file '{filename}': {exc}"
-            ) from exc
+            raise ValidationError(f"Failed to open XLSX file '{filename}': {exc}") from exc
 
         sections: list[str] = []
         total_rows = 0

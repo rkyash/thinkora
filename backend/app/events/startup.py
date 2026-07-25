@@ -42,6 +42,7 @@ async def on_startup() -> None:
     # 3. Celery broker health check
     try:
         from app.workers.celery_app import celery_app
+
         conn = celery_app.connection()
         conn.ensure_connection(max_retries=1, timeout=5)
         conn.close()
@@ -71,6 +72,7 @@ async def on_startup() -> None:
     if not settings.AUTH_ENABLED:
         from app.database import async_session_factory
         from app.repositories import user_repo
+
         async with async_session_factory() as db:
             user = await user_repo.get_by_email(db, "local@thinkora.app")
             if not user:
@@ -90,6 +92,5 @@ async def on_startup() -> None:
 async def _hydrate_settings_from_db() -> None:
     """Delegate settings hydration to the settings service."""
     from app.services.settings import hydrate_settings_from_db
+
     await hydrate_settings_from_db()
-
-

@@ -88,9 +88,7 @@ class DocxParser(BaseParser):
         try:
             document = docx.Document(io.BytesIO(data))
         except Exception as exc:
-            raise ValidationError(
-                f"Failed to open DOCX file '{filename}': {exc}"
-            ) from exc
+            raise ValidationError(f"Failed to open DOCX file '{filename}': {exc}") from exc
 
         # Build an ordered list of blocks (paragraphs and tables) as they
         # appear in the document body.  python-docx exposes the XML element

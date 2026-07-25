@@ -56,9 +56,7 @@ class PdfParser(BaseParser):
         try:
             doc = fitz.open(stream=data, filetype="pdf")
         except Exception as exc:
-            raise ValidationError(
-                f"Failed to open PDF file '{filename}': {exc}"
-            ) from exc
+            raise ValidationError(f"Failed to open PDF file '{filename}': {exc}") from exc
 
         pages: list[str] = []
         try:
@@ -69,8 +67,7 @@ class PdfParser(BaseParser):
                     pages.append(page_text.strip())
         except Exception as exc:
             raise ValidationError(
-                f"Failed to extract text from PDF '{filename}' "
-                f"at page {page_num}: {exc}"
+                f"Failed to extract text from PDF '{filename}' at page {page_num}: {exc}"
             ) from exc
         finally:
             doc.close()

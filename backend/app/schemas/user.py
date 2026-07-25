@@ -10,6 +10,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 # ─── Request Schemas ──────────────────────────────────────────
 
+
 class UserCreate(BaseModel):
     """Registration request."""
 
@@ -29,7 +30,9 @@ class UpdatePasswordRequest(BaseModel):
     email: EmailStr
     new_password: str = Field(min_length=8, max_length=128)
 
+
 # ─── Response Schemas ─────────────────────────────────────────
+
 
 class UserResponse(BaseModel):
     """User profile response."""

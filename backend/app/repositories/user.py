@@ -19,8 +19,10 @@ class UserRepo(GenericRepo[User]):
         """Find user by username."""
         result = await db.execute(select(User).where(User.username == username))
         return result.scalar_one_or_none()
-    
+
     async def get_by_email_or_username(self, db: AsyncSession, email: str) -> User | None:
         """Find user by email or username."""
-        result = await db.execute(select(User).where((User.email == email) | (User.username == email)))
+        result = await db.execute(
+            select(User).where((User.email == email) | (User.username == email))
+        )
         return result.scalar_one_or_none()

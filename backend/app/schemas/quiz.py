@@ -16,11 +16,12 @@ from app.core.constants import QuestionType
 
 class QuizGenerateRequest(BaseModel):
     """Request body for AI quiz generation."""
+
     title: str | None = None
     question_count: int = 10
     question_types: list[QuestionType] = [QuestionType.MCQ, QuestionType.TRUE_FALSE]
-    topic: str | None = None      # optional topic focus
-    model: str | None = None      # override default LLM
+    topic: str | None = None  # optional topic focus
+    model: str | None = None  # override default LLM
 
 
 # ─── Response schemas ─────────────────────────────────────────────────────────
@@ -28,11 +29,12 @@ class QuizGenerateRequest(BaseModel):
 
 class QuizQuestionResponse(BaseModel):
     """Single quiz question response."""
+
     id: str
     quiz_id: str
     question: str
     type: QuestionType
-    options: Any | None           # [{text, is_correct}] for MCQ
+    options: Any | None  # [{text, is_correct}] for MCQ
     correct_answer: str | None
     explanation: str | None
 
@@ -41,6 +43,7 @@ class QuizQuestionResponse(BaseModel):
 
 class QuizResponse(BaseModel):
     """Quiz without questions — used in list endpoints."""
+
     id: str
     notebook_id: str
     title: str | None
@@ -51,6 +54,7 @@ class QuizResponse(BaseModel):
 
 class QuizDetailResponse(BaseModel):
     """Quiz with all questions — used in detail endpoint."""
+
     id: str
     notebook_id: str
     title: str | None

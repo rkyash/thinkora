@@ -39,6 +39,7 @@ async def get_current_user(
     Raises AuthenticationError if token is invalid, expired, or blacklisted.
     """
     from app.config import settings
+
     if not settings.AUTH_ENABLED:
         user = await user_repo.get_by_email(db, "local@thinkora.app")
         if not user:
@@ -105,6 +106,7 @@ async def get_current_user_for_sse(
       2. Authorization: Bearer <jwt>  header  (regular HTTP clients)
     """
     from app.config import settings
+
     if not settings.AUTH_ENABLED:
         user = await user_repo.get_by_email(db, "local@thinkora.app")
         if not user:

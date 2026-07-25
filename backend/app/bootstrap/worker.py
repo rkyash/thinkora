@@ -10,7 +10,7 @@ import sys
 from app.config import settings
 from app.core.logging import logger
 
-_worker_process: subprocess.Popen | None = None
+_worker_process: subprocess.Popen[bytes] | None = None
 
 
 def start_worker(concurrency: int = 2) -> bool:
@@ -36,8 +36,11 @@ def start_worker(concurrency: int = 2) -> bool:
     backend_dir = _get_backend_dir()
 
     cmd = [
-        sys.executable, "-m", "celery",
-        "-A", "app.workers.celery_app",
+        sys.executable,
+        "-m",
+        "celery",
+        "-A",
+        "app.workers.celery_app",
         "worker",
         "--loglevel=info",
         f"--concurrency={concurrency}",

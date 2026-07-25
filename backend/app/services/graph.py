@@ -34,6 +34,7 @@ chunk_repo = ChunkRepo()
 
 # ─── LangGraph state ──────────────────────────────────────────────────────────
 
+
 class GraphState(TypedDict):
     raw_text: str
     extracted: dict[str, Any]
@@ -42,6 +43,7 @@ class GraphState(TypedDict):
 
 
 # ─── Graph Service ────────────────────────────────────────────────────────────
+
 
 class GraphService:
     """
@@ -64,10 +66,10 @@ class GraphService:
         prompt = (
             "Extract entities and relationships from the text below.\n\n"
             "Return ONLY valid JSON (no markdown fences, no explanation):\n"
-            '{\n'
+            "{\n"
             '  "nodes": [{"id": "unique_snake_case_id", "label": "Name", "type": "concept|entity|topic|person|place|event"}],\n'
             '  "edges": [{"source": "node_id1", "target": "node_id2", "label": "short verb phrase"}]\n'
-            '}\n\n'
+            "}\n\n"
             "Rules:\n"
             f"- Maximum {MAX_GRAPH_NODES} nodes total.\n"
             "- Every edge must reference valid node ids from the nodes array.\n"
@@ -119,7 +121,7 @@ class GraphService:
 
     # ─── Public API ───────────────────────────────────────────────────────
 
-    async def get_graph(self, notebook_id: str) -> dict[str, list]:
+    async def get_graph(self, notebook_id: str) -> dict[str, list[Any]]:
         """Return all nodes + edges for a notebook."""
         node_result = await self._db.execute(
             select(GraphNode).where(GraphNode.notebook_id == notebook_id)
@@ -133,9 +135,7 @@ class GraphService:
 
         return {"nodes": nodes, "edges": edges}
 
-    async def refresh_graph(
-        self, notebook_id: str, model: str | None = None
-    ) -> dict[str, list]:
+    async def refresh_graph(self, notebook_id: str, model: str | None = None) -> dict[str, list[Any]]:
         """
         Regenerate the knowledge graph for a notebook:
           1. Collect all chunk text.
@@ -163,20 +163,16 @@ class GraphService:
         state = await self._deduplicate_entities(state)
 
         final = state["final"]
-        raw_nodes: list[dict] = final.get("nodes", [])
-        raw_edges: list[dict] = final.get("edges", [])
+        raw_nodes: list[dict[str, Any]] = final.get("nodes", [])
+        raw_edges: list[dict[str, Any]] = final.get("edges", [])
 
         # Enforce node cap
         raw_nodes = raw_nodes[:MAX_GRAPH_NODES]
         valid_ids = {n["id"] for n in raw_nodes}
 
         # Delete existing graph data
-        await self._db.execute(
-            delete(GraphEdge).where(GraphEdge.notebook_id == notebook_id)
-        )
-        await self._db.execute(
-            delete(GraphNode).where(GraphNode.notebook_id == notebook_id)
-        )
+        await self._db.execute(delete(GraphEdge).where(GraphEdge.notebook_id == notebook_id))
+        await self._db.execute(delete(GraphNode).where(GraphNode.notebook_id == notebook_id))
         await self._db.flush()
 
         # Insert new nodes with layout positions (simple radial layout)
@@ -297,6 +293,7 @@ class GraphService:
 
 
 # ─── Helper ───────────────────────────────────────────────────────────────────
+
 
 def _extract_json(text: str) -> Any:
     """Extract and parse the first JSON object or array from LLM output."""

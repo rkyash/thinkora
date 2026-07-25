@@ -12,12 +12,14 @@ def get_cors_origins() -> list[str]:
     origins = [settings.FRONTEND_URL]
     # In dev, also allow common local ports
     if settings.is_dev:
-        origins.extend([
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "http://127.0.0.1:5173",
-        ])
+        origins.extend(
+            [
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://127.0.0.1:5173",
+            ]
+        )
     return list(set(origins))
 
 

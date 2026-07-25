@@ -170,7 +170,9 @@ def _extract_json(text: str) -> Any:
     raise ValueError(f"Could not extract JSON from LLM output: {text[:200]}")
 
 
-async def _collect_notebook_text(db: AsyncSession, notebook_id: str, max_chars: int = 60_000) -> str:
+async def _collect_notebook_text(
+    db: AsyncSession, notebook_id: str, max_chars: int = 60_000
+) -> str:
     """Aggregate document chunk text from a notebook (up to max_chars)."""
     chunks = await chunk_repo.list_all(db, notebook_id=notebook_id, limit=500)
     parts: list[str] = []
@@ -221,7 +223,9 @@ class StudyToolsService:
         messages = [{"role": "user", "content": prompt}]
 
         log.info("summarize_note_start", note_id=note_id)
-        summary = await self._llm.get_chat_completion(messages=messages, model=model, temperature=0.3)
+        summary = await self._llm.get_chat_completion(
+            messages=messages, model=model, temperature=0.3
+        )
         log.info("summarize_note_done", note_id=note_id, summary_len=len(summary))
         return summary
 
@@ -271,7 +275,7 @@ class StudyToolsService:
             raise ValueError("LLM returned non-list JSON for flashcards")
 
         # Validate & create cards
-        rows: list[dict] = []
+        rows: list[dict[str, Any]] = []
         for item in cards_data:
             if not isinstance(item, dict):
                 continue
@@ -344,12 +348,10 @@ class StudyToolsService:
 
         # Create Quiz
         quiz_title = title or "AI-Generated Quiz"
-        quiz = await quiz_repo.create(
-            self._db, {"notebook_id": notebook_id, "title": quiz_title}
-        )
+        quiz = await quiz_repo.create(self._db, {"notebook_id": notebook_id, "title": quiz_title})
 
         # Create questions
-        question_rows: list[dict] = []
+        question_rows: list[dict[str, Any]] = []
         for item in questions_data:
             if not isinstance(item, dict):
                 continue
@@ -440,9 +442,7 @@ class StudyToolsService:
         # content is already sanitized by _collect_notebook_text()
         # Also sanitize notebook_name to prevent injection through user-named notebooks
         safe_name = sanitize_user_content(notebook_name, max_chars=200)
-        prompt = _STUDY_GUIDE_PROMPT.format(
-            notebook_name=safe_name, content=content
-        )
+        prompt = _STUDY_GUIDE_PROMPT.format(notebook_name=safe_name, content=content)
         messages = [{"role": "user", "content": prompt}]
 
         log.info("generate_study_guide_start", notebook_id=notebook_id)

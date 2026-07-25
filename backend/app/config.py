@@ -72,8 +72,8 @@ class Settings(BaseSettings):
     # ─── Custom OpenAI-Compatible Proxy (e.g. NVIDIA NIM, vLLM, LM Studio) ──
     # Set OPENAI_PROXY_BASE_URL to route through any OpenAI-compatible endpoint.
     # The model string in DEFAULT_MODEL should use the "openai/" prefix when this is set.
-    OPENAI_PROXY_BASE_URL: str = ""   # e.g. https://integrate.api.nvidia.com/v1
-    OPENAI_PROXY_API_KEY: str = ""    # API key for the proxy endpoint
+    OPENAI_PROXY_BASE_URL: str = ""  # e.g. https://integrate.api.nvidia.com/v1
+    OPENAI_PROXY_API_KEY: str = ""  # API key for the proxy endpoint
 
     # ─── LLM Defaults ─────────────────────────────────────────
     DEFAULT_MODEL: str = "ollama/gemma4:latest"

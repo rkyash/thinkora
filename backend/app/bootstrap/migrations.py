@@ -15,7 +15,9 @@ def needs_migration() -> bool:
     try:
         result = subprocess.run(
             ["python", "-m", "alembic", "check"],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True,
+            text=True,
+            timeout=30,
             cwd=backend_dir,
         )
         # alembic check returns 0 if no new migrations needed,
@@ -34,7 +36,9 @@ def run_migrations(timeout: int = 60) -> bool:
     try:
         result = subprocess.run(
             ["python", "-m", "alembic", "upgrade", "head"],
-            capture_output=True, text=True, timeout=timeout,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
             cwd=backend_dir,
         )
         if result.returncode == 0:

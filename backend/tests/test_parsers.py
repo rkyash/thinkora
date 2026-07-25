@@ -95,6 +95,7 @@ class TestDispatchParser:
 
         # Manually inject into registry
         from app.services.parsers import _get_registry
+
         registry = _get_registry()
         registry[SourceType.TXT] = FakeParser()
 
@@ -108,6 +109,7 @@ class TestDispatchParser:
         # We'll use a custom approach: clear registry and try dispatch
 
         from app.services.parsers import _get_registry
+
         registry = _get_registry()
         # Remove all entries to simulate no parsers
         registry.clear()
@@ -125,6 +127,7 @@ class TestDispatchParser:
                 return ""
 
         from app.services.parsers import _get_registry
+
         instance = StubParser()
         _get_registry()[SourceType.CSV] = instance
 
@@ -174,6 +177,7 @@ class TestRegistry:
                 return ""
 
         from app.services.parsers import _get_registry
+
         registry = _get_registry()
         instance = MultiParser()
         for st in instance.supported_types:

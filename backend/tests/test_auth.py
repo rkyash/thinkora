@@ -183,9 +183,7 @@ class TestJWTTokens:
             "exp": datetime.now(UTC) - timedelta(hours=1),
             "type": "access",
         }
-        expired_token = jwt.encode(
-            expired_payload, settings.SECRET_KEY, algorithm=ALGORITHM
-        )
+        expired_token = jwt.encode(expired_payload, settings.SECRET_KEY, algorithm=ALGORITHM)
         with pytest.raises(AuthenticationError, match="Invalid or expired token"):
             decode_token(expired_token)
 
@@ -275,9 +273,7 @@ class TestTokenBlacklist:
             "exp": datetime.now(UTC) - timedelta(hours=1),
             "type": "access",
         }
-        expired_token = jwt.encode(
-            expired_payload, settings.SECRET_KEY, algorithm=ALGORITHM
-        )
+        expired_token = jwt.encode(expired_payload, settings.SECRET_KEY, algorithm=ALGORITHM)
         mock_redis = AsyncMock()
 
         with patch("app.services.auth.get_redis", return_value=mock_redis):
@@ -321,9 +317,7 @@ class TestRegisterUser:
             username="newuser",
             password="securepassword123",
         )
-        mock_user = _make_mock_user(
-            email="new@example.com", username="newuser"
-        )
+        mock_user = _make_mock_user(email="new@example.com", username="newuser")
 
         with (
             patch("app.services.auth.user_repo") as mock_user_repo,
@@ -392,9 +386,7 @@ class TestRegisterUser:
             username="longpassuser",
             password=long_password,
         )
-        mock_user = _make_mock_user(
-            email="longpass@example.com", username="longpassuser"
-        )
+        mock_user = _make_mock_user(email="longpass@example.com", username="longpassuser")
 
         with (
             patch("app.services.auth.user_repo") as mock_user_repo,
@@ -427,9 +419,7 @@ class TestLoginUser:
         with patch("app.services.auth.user_repo") as mock_user_repo:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=mock_user)
 
-            user_dict, tokens = await login_user(
-                mock_db, "test@example.com", password
-            )
+            user_dict, tokens = await login_user(mock_db, "test@example.com", password)
 
         assert user_dict["email"] == "test@example.com"
         assert isinstance(tokens, TokenResponse)
@@ -444,9 +434,7 @@ class TestLoginUser:
         with patch("app.services.auth.user_repo") as mock_user_repo:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=mock_user)
 
-            with pytest.raises(
-                AuthenticationError, match="Invalid email/username or password"
-            ):
+            with pytest.raises(AuthenticationError, match="Invalid email/username or password"):
                 await login_user(mock_db, "test@example.com", "wrongpassword")
 
     @pytest.mark.asyncio
@@ -457,12 +445,8 @@ class TestLoginUser:
         with patch("app.services.auth.user_repo") as mock_user_repo:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=None)
 
-            with pytest.raises(
-                AuthenticationError, match="Invalid email/username or password"
-            ):
-                await login_user(
-                    mock_db, "nobody@example.com", "anypassword"
-                )
+            with pytest.raises(AuthenticationError, match="Invalid email/username or password"):
+                await login_user(mock_db, "nobody@example.com", "anypassword")
 
     @pytest.mark.asyncio
     async def test_login_disabled_account_raises(self):
@@ -475,9 +459,7 @@ class TestLoginUser:
         with patch("app.services.auth.user_repo") as mock_user_repo:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=mock_user)
 
-            with pytest.raises(
-                AuthenticationError, match="Account is disabled"
-            ):
+            with pytest.raises(AuthenticationError, match="Account is disabled"):
                 await login_user(mock_db, "test@example.com", password)
 
     @pytest.mark.asyncio
@@ -492,9 +474,7 @@ class TestLoginUser:
         with patch("app.services.auth.user_repo") as mock_user_repo:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=mock_user)
 
-            user_dict, tokens = await login_user(
-                mock_db, "test@example.com", long_password
-            )
+            user_dict, tokens = await login_user(mock_db, "test@example.com", long_password)
 
         assert user_dict["email"] == "test@example.com"
 
@@ -509,15 +489,11 @@ class TestLoginUser:
         with patch("app.services.auth.user_repo") as mock_user_repo:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=mock_user)
 
-            user_dict, tokens = await login_user(
-                mock_db, "testuser", password
-            )
+            user_dict, tokens = await login_user(mock_db, "testuser", password)
 
         assert user_dict["username"] == "testuser"
         assert isinstance(tokens, TokenResponse)
-        mock_user_repo.get_by_email_or_username.assert_called_once_with(
-            mock_db, "testuser"
-        )
+        mock_user_repo.get_by_email_or_username.assert_called_once_with(mock_db, "testuser")
 
     @pytest.mark.asyncio
     async def test_login_returns_token_type_bearer(self):
@@ -530,9 +506,7 @@ class TestLoginUser:
         with patch("app.services.auth.user_repo") as mock_user_repo:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=mock_user)
 
-            _, tokens = await login_user(
-                mock_db, "test@example.com", password
-            )
+            _, tokens = await login_user(mock_db, "test@example.com", password)
 
         assert tokens.token_type == "bearer"
 
@@ -567,9 +541,7 @@ class TestRefreshTokens:
         mock_redis.exists.return_value = 1  # Blacklisted
 
         with patch("app.services.auth.get_redis", return_value=mock_redis):
-            with pytest.raises(
-                AuthenticationError, match="Token has been revoked"
-            ):
+            with pytest.raises(AuthenticationError, match="Token has been revoked"):
                 await refresh_tokens(refresh)
 
     @pytest.mark.asyncio
@@ -580,9 +552,7 @@ class TestRefreshTokens:
         mock_redis.exists.return_value = 0  # Not blacklisted
 
         with patch("app.services.auth.get_redis", return_value=mock_redis):
-            with pytest.raises(
-                AuthenticationError, match="Invalid token type"
-            ):
+            with pytest.raises(AuthenticationError, match="Invalid token type"):
                 await refresh_tokens(access)
 
     @pytest.mark.asyncio
@@ -595,9 +565,7 @@ class TestRefreshTokens:
             "exp": datetime.now(UTC) - timedelta(hours=1),
             "type": "refresh",
         }
-        expired_token = jwt.encode(
-            expired_payload, settings.SECRET_KEY, algorithm=ALGORITHM
-        )
+        expired_token = jwt.encode(expired_payload, settings.SECRET_KEY, algorithm=ALGORITHM)
         mock_redis = AsyncMock()
         mock_redis.exists.return_value = 0
 
@@ -622,9 +590,7 @@ class TestUpdatePasswordByEmail:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=mock_user)
             mock_user_repo.update = AsyncMock()
 
-            await update_password_by_email(
-                mock_db, "user@example.com", "newstrongpass123"
-            )
+            await update_password_by_email(mock_db, "user@example.com", "newstrongpass123")
 
         mock_user_repo.update.assert_called_once()
         call_args = mock_user_repo.update.call_args
@@ -645,9 +611,7 @@ class TestUpdatePasswordByEmail:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=None)
 
             with pytest.raises(AuthenticationError, match="User not found"):
-                await update_password_by_email(
-                    mock_db, "ghost@example.com", "newpass123"
-                )
+                await update_password_by_email(mock_db, "ghost@example.com", "newpass123")
 
     @pytest.mark.asyncio
     async def test_update_password_with_long_password(self):
@@ -661,9 +625,7 @@ class TestUpdatePasswordByEmail:
             mock_user_repo.get_by_email_or_username = AsyncMock(return_value=mock_user)
             mock_user_repo.update = AsyncMock()
 
-            await update_password_by_email(
-                mock_db, "test@example.com", long_password
-            )
+            await update_password_by_email(mock_db, "test@example.com", long_password)
 
         new_hash = mock_user_repo.update.call_args[0][2]["hashed_password"]
         assert verify_password(long_password, new_hash) is True

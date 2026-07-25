@@ -21,9 +21,7 @@ class AppSettingsRepo:
 
     async def get(self, db: AsyncSession, key: str) -> AppSetting | None:
         """Fetch one setting by key."""
-        result = await db.execute(
-            select(AppSetting).where(AppSetting.id == key)
-        )
+        result = await db.execute(select(AppSetting).where(AppSetting.id == key))
         return result.scalar_one_or_none()
 
     async def get_value(self, db: AsyncSession, key: str) -> str | None:
@@ -64,9 +62,7 @@ class AppSettingsRepo:
 
     async def get_many(self, db: AsyncSession, keys: list[str]) -> dict[str, str | None]:
         """Batch-fetch multiple keys. Returns {key: value_or_None}."""
-        result = await db.execute(
-            select(AppSetting).where(AppSetting.id.in_(keys))
-        )
+        result = await db.execute(select(AppSetting).where(AppSetting.id.in_(keys)))
         rows = {r.id: r.value for r in result.scalars().all()}
         # Fill missing keys with None
         return {k: rows.get(k) for k in keys}

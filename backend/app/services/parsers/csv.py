@@ -52,9 +52,7 @@ class CsvParser(BaseParser):
             )
         except Exception as exc:
             logger.error("csv_read_failed", filename=filename, error=str(exc))
-            raise ValidationError(
-                f"Failed to parse CSV file '{filename}': {exc}"
-            ) from exc
+            raise ValidationError(f"Failed to parse CSV file '{filename}': {exc}") from exc
 
         if df.empty:
             logger.warning("csv_empty", filename=filename)
@@ -69,7 +67,7 @@ class CsvParser(BaseParser):
             rows=len(df),
             columns=len(df.columns),
         )
-        return text
+        return str(text or "")
 
     # ------------------------------------------------------------------
     # Helpers
@@ -89,6 +87,4 @@ class CsvParser(BaseParser):
             try:
                 return data.decode("latin-1")
             except UnicodeDecodeError as exc:
-                raise ValidationError(
-                    f"Cannot decode CSV file '{filename}': {exc}"
-                ) from exc
+                raise ValidationError(f"Cannot decode CSV file '{filename}': {exc}") from exc

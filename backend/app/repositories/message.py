@@ -23,9 +23,7 @@ class MessageRepo(GenericRepo[ChatMessage]):
         )
         return list(result.scalars().all())
 
-    async def get_recent(
-        self, db: AsyncSession, session_id: str, k: int = 10
-    ) -> list[ChatMessage]:
+    async def get_recent(self, db: AsyncSession, session_id: str, k: int = 10) -> list[ChatMessage]:
         """Get the most recent k messages for conversation history."""
         result = await db.execute(
             select(ChatMessage)

@@ -99,7 +99,7 @@ class EmbeddingService:
         )
 
         logger.debug("embed_texts", count=len(texts))
-        return embeddings.tolist()
+        return embeddings.tolist()  # type: ignore[no-any-return]
 
     def embed_query(self, query: str) -> list[float]:
         """Encode a single search query.
@@ -118,20 +118,29 @@ class EmbeddingService:
 
         # Attempt to use prompt_name for models that support asymmetric search
         # (e.g. INSTRUCTOR, E5).  Falls back silently for models that don't.
-        encode_kwargs: dict = {
+        encode_kwargs: dict[str, object] = {
             "show_progress_bar": False,
             "convert_to_numpy": True,
         }
 
         # Check if model supports prompt_name (e.g. sentence-transformers >= 2.3)
         try:
-            embedding = model.encode(query, prompt_name="query", **encode_kwargs)
+            embedding = model.encode(
+                query,
+                prompt_name="query",
+                show_progress_bar=False,
+                convert_to_numpy=True,
+            )
         except (TypeError, ValueError):
             # Model doesn't support prompt_name — encode without it
-            embedding = model.encode(query, **encode_kwargs)
+            embedding = model.encode(
+                query,
+                show_progress_bar=False,
+                convert_to_numpy=True,
+            )
 
         logger.debug("embed_query", query_len=len(query))
-        return embedding.tolist()
+        return embedding.tolist()  # type: ignore[no-any-return]
 
     def get_dimension(self) -> int:
         """Return the embedding vector dimension for the loaded model.

@@ -14,9 +14,7 @@ from starlette.responses import Response
 class RequestIDMiddleware(BaseHTTPMiddleware):
     """Inject X-Request-ID header and bind to structlog context."""
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # Use client-provided ID or generate one
         request_id = request.headers.get("X-Request-ID", str(uuid4()))
 

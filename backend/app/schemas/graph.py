@@ -13,6 +13,7 @@ from app.core.constants import GraphNodeType
 
 class GraphNodeCreate(BaseModel):
     """Manually create a graph node."""
+
     label: str
     type: GraphNodeType = GraphNodeType.CONCEPT
     x_pos: float = 0.0
@@ -21,6 +22,7 @@ class GraphNodeCreate(BaseModel):
 
 class GraphRefreshRequest(BaseModel):
     """Request body for graph regeneration (optional model override)."""
+
     model: str | None = None
 
 
@@ -29,6 +31,7 @@ class GraphRefreshRequest(BaseModel):
 
 class GraphNodeResponse(BaseModel):
     """Single graph node."""
+
     id: str
     notebook_id: str
     label: str
@@ -41,6 +44,7 @@ class GraphNodeResponse(BaseModel):
 
 class GraphEdgeResponse(BaseModel):
     """Single graph edge."""
+
     id: str
     notebook_id: str
     source_node: str
@@ -52,11 +56,13 @@ class GraphEdgeResponse(BaseModel):
 
 class GraphResponse(BaseModel):
     """Full graph — nodes + edges."""
+
     nodes: list[GraphNodeResponse]
     edges: list[GraphEdgeResponse]
 
 
 class GraphRefreshResponse(BaseModel):
     """Response after dispatching graph refresh task."""
+
     task_id: str
     message: str = "Graph regeneration started"

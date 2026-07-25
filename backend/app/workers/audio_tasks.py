@@ -58,7 +58,7 @@ def generate_podcast_task(
                     {
                         "status": TaskStatus.READY,
                         "audio_path": saved_path,
-                    }
+                    },
                 )
                 # Commit the transaction to save status
                 await session.commit()
@@ -81,7 +81,7 @@ def generate_podcast_task(
                     },
                 )
                 await session.commit()
-                
+
                 # Publish error event to notify client
                 await publish_event(
                     generation_id,
@@ -89,9 +89,9 @@ def generate_podcast_task(
                         "status": "error",
                         "step": "error",
                         "detail": {"error_msg": str(e)},
-                    }
+                    },
                 )
-                
+
                 raise
 
     return asyncio.run(_run_podcast())

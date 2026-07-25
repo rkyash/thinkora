@@ -15,6 +15,7 @@ from app.core.logging import logger
 @dataclass
 class EnvironmentState:
     """Snapshot of the current development environment."""
+
     docker_installed: bool = False
     docker_running: bool = False
     compose_command: list[str] | None = None  # ["docker", "compose"] or ["docker-compose"]
@@ -84,7 +85,8 @@ def _is_docker_running() -> bool:
     try:
         result = subprocess.run(
             ["docker", "info"],
-            capture_output=True, timeout=10,
+            capture_output=True,
+            timeout=10,
         )
         return result.returncode == 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -97,7 +99,8 @@ def _detect_compose_command() -> list[str] | None:
     try:
         result = subprocess.run(
             ["docker", "compose", "version"],
-            capture_output=True, timeout=10,
+            capture_output=True,
+            timeout=10,
         )
         if result.returncode == 0:
             return ["docker", "compose"]
@@ -109,7 +112,8 @@ def _detect_compose_command() -> list[str] | None:
         try:
             result = subprocess.run(
                 ["docker-compose", "version"],
-                capture_output=True, timeout=10,
+                capture_output=True,
+                timeout=10,
             )
             if result.returncode == 0:
                 return ["docker-compose"]
@@ -129,7 +133,9 @@ def _get_services_status(
     try:
         result = subprocess.run(
             [*compose_cmd, "-f", compose_file, "-p", project_name, "ps", "--format", "json"],
-            capture_output=True, text=True, timeout=15,
+            capture_output=True,
+            text=True,
+            timeout=15,
             cwd=project_root,
         )
         if result.returncode != 0:
