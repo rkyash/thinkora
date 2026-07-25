@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Frontend (npm)
+  # ── Frontend (npm) ────────────────────────────────────────────────
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
@@ -10,8 +10,18 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
+    groups:
+      # All non-breaking npm updates bundled into ONE PR
+      frontend-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+      # Major (potentially breaking) updates get their own PR
+      frontend-major:
+        update-types:
+          - "major"
 
-  # Backend (pip)
+  # ── Backend Python (pip) ──────────────────────────────────────────
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
@@ -21,8 +31,18 @@ updates:
     labels:
       - "dependencies"
       - "backend"
+    groups:
+      # All minor + patch Python updates bundled into ONE PR
+      python-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+      # Major updates get separate PRs (could be breaking)
+      python-major:
+        update-types:
+          - "major"
 
-  # GitHub Actions
+  # ── GitHub Actions ────────────────────────────────────────────────
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -32,3 +52,26 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    groups:
+      # All GitHub Actions updates in one PR
+      github-actions-all:
+        update-types:
+          - "minor"
+          - "patch"
+          - "major"
+
+  # ── Docker base images ────────────────────────────────────────────
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "docker"
+    groups:
+      docker-all:
+        update-types:
+          - "minor"
+          - "patch"
