@@ -9,6 +9,7 @@ Welcome to the Thinkora Developer Guide! This document provides everything you n
 3. [Manual Setup](#manual-setup)
 4. [Service URLs](#service-urls)
 5. [Backend Development](#backend-development)
+   - [Code Quality — Run Before Pushing](#code-quality--run-before-pushing)
 6. [Frontend Development](#frontend-development)
 7. [Database Migrations](#database-migrations)
 8. [Docker Commands](#docker-commands)
@@ -210,6 +211,63 @@ For long-running tasks (like parsing documents or generating embeddings), we use
    ```python
    process_document_task.delay(doc_id=123)
    ```
+
+### Code Quality — Run Before Pushing
+
+> ⚠️ CI will fail if these checks don't pass. Always run them locally before pushing.
+
+#### Backend
+
+```bash
+cd backend
+
+# Activate virtual environment first (ruff & mypy are dev dependencies, not global)
+source .venv/bin/activate
+
+# 1. Lint — checks code style and fixes auto-fixable issues
+ruff check . --fix
+
+# 2. Format — ensures consistent code formatting
+ruff format .
+
+# 3. Type check
+mypy app/
+```
+
+Run all three in one shot:
+
+```bash
+source .venv/bin/activate && ruff check . --fix && ruff format . && mypy app/
+```
+
+#### Frontend
+
+```bash
+cd frontend
+
+# 1. Lint
+npm run lint
+
+# 2. Type check
+npx tsc --noEmit
+
+# 3. Build validation (catches import/compile errors)
+npm run build
+```
+
+#### What CI checks (mirrors the above)
+
+| Check | Command | Scope |
+|---|---|---|
+| Backend lint | `ruff check . --fix` | `backend/` |
+| Backend format | `ruff format --check .` | `backend/` |
+| Backend types | `mypy app/` | `backend/app/` |
+| Backend tests | `pytest` | `backend/tests/` |
+| Frontend lint | `npm run lint` (oxlint) | `frontend/src/` |
+| Frontend types | `npx tsc --noEmit` | `frontend/` |
+| Frontend build | `npm run build` | `frontend/` |
+
+---
 
 ### Testing
 

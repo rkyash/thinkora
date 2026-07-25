@@ -9,13 +9,13 @@ class ChatMessage(BaseModel):
     content: str = Field(..., description="Message content")
 
 class ChatRequest(BaseModel):
-    messages: List[ChatMessage] = Field(..., description="Chat history including the latest user message")
-    model: Optional[str] = Field(None, description="Optional LLM model override")
+    messages: list[ChatMessage] = Field(..., description="Chat history including the latest user message")
+    model: str | None = Field(None, description="Optional LLM model override")
 
 class ChatResponse(BaseModel):
     """Fallback schema for non-streaming response if needed"""
     message: ChatMessage
-    citations: List[dict] = []
+    citations: list[dict] = []
 
 class ChatSessionCreate(BaseModel):
     title: str = "New Chat"

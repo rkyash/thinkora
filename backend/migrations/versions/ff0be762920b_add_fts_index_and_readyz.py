@@ -7,17 +7,17 @@ Create Date: 2026-07-17 21:05:40.923570
 TASK-190: Add PostgreSQL indexes for search scalability.
 TASK-191: Add GIN index on tsvector(content) for efficient FTS.
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
+from typing import Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = 'ff0be762920b'
-down_revision: Union[str, Sequence[str], None] = 'd14aec8d7089'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = 'd14aec8d7089'
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:

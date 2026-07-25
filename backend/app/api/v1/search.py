@@ -25,7 +25,7 @@ router = APIRouter(prefix="/search", tags=["Search"])
 @router.get("/", response_model=SearchResponse)
 async def hybrid_search(
     q: str = Query(..., min_length=1, description="Search query"),
-    notebook_id: Optional[str] = Query(None, description="Limit search to a specific notebook"),
+    notebook_id: str | None = Query(None, description="Limit search to a specific notebook"),
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),

@@ -95,8 +95,8 @@ async def get_notebook_or_404(
 
 async def get_current_user_for_sse(
     db: AsyncSession = Depends(get_db),
-    token: Optional[str] = Query(default=None),
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
+    token: str | None = Query(default=None),
+    credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False)),
 ) -> User:
     """
     Auth dependency for SSE endpoints.
@@ -111,7 +111,7 @@ async def get_current_user_for_sse(
             raise AuthenticationError("Local user not initialized")
         return user
 
-    raw_token: Optional[str] = None
+    raw_token: str | None = None
 
     if token:
         raw_token = token

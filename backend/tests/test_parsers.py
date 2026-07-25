@@ -19,10 +19,10 @@ from app.core.constants import SourceType
 from app.core.exceptions import ValidationError
 from app.services.parsers import (
     BaseParser,
+    _build_registry,
     dispatch_parser,
     get_supported_types,
     reset_registry,
-    _build_registry,
 )
 
 

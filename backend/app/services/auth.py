@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 
 import bcrypt
 import jwt
@@ -56,14 +56,14 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 def create_access_token(user_id: str) -> str:
     """Create a short-lived access JWT."""
-    expire = datetime.now(timezone.utc) + ACCESS_TOKEN_EXPIRE
+    expire = datetime.now(UTC) + ACCESS_TOKEN_EXPIRE
     payload = {"sub": user_id, "exp": expire, "type": "access"}
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)  # type: ignore[arg-type]
 
 
 def create_refresh_token(user_id: str) -> str:
     """Create a long-lived refresh JWT."""
-    expire = datetime.now(timezone.utc) + REFRESH_TOKEN_EXPIRE
+    expire = datetime.now(UTC) + REFRESH_TOKEN_EXPIRE
     payload = {"sub": user_id, "exp": expire, "type": "refresh"}
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
 
@@ -91,7 +91,7 @@ async def blacklist_token(token: str) -> None:
     try:
         payload = decode_token(token)
         exp = payload.get("exp", 0)
-        now = datetime.now(timezone.utc).timestamp()
+        now = datetime.now(UTC).timestamp()
         ttl = max(int(exp - now), 1)
         redis = await get_redis()
         await redis.setex(f"{TOKEN_BLACKLIST_PREFIX}{token}", ttl, "1")

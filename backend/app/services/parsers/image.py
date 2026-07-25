@@ -14,10 +14,10 @@ from PIL import Image, ImageFile
 # Allow loading of truncated images (handles some corrupt images gracefully)
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-from app.core.constants import SourceType
-from app.core.exceptions import ValidationError
-from app.core.logging import logger
-from app.services.parsers import BaseParser
+from app.core.constants import SourceType  # noqa: E402
+from app.core.exceptions import ValidationError  # noqa: E402
+from app.core.logging import logger  # noqa: E402
+from app.services.parsers import BaseParser  # noqa: E402
 
 # Optional OCR dependency
 try:

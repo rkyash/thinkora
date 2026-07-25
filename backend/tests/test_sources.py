@@ -14,6 +14,7 @@ Covers acceptance criteria for TASK-110:
 from __future__ import annotations
 
 import uuid
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -23,6 +24,7 @@ from fastapi.testclient import TestClient
 from app.api.v1.sources import router
 from app.core.dependencies import get_current_user, get_db
 from app.models.user import User
+
 
 def _create_test_app(mock_user=None):
     """Create a minimal FastAPI app with the sources router."""
@@ -94,17 +96,18 @@ def mock_deps():
         }
 
 def get_mock_source():
-    from app.models.source import Source
-    from app.core.constants import SourceType, SourceStatus
     import uuid
     from datetime import datetime, timezone
+
+    from app.core.constants import SourceStatus, SourceType
+    from app.models.source import Source
     return Source(
         id=uuid.uuid4(),
         notebook_id=uuid.uuid4(),
         name="test_source",
         type=SourceType.TXT,
         status=SourceStatus.PENDING,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 class TestSourcesAPI:

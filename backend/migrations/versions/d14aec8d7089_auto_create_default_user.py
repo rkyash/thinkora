@@ -5,21 +5,23 @@ Revises: 5f313a248c38
 Create Date: 2026-06-27 20:30:02.116334
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
+from typing import Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = 'd14aec8d7089'
-down_revision: Union[str, Sequence[str], None] = '5f313a248c38'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = '5f313a248c38'
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
+
+import uuid
 
 from app.services.auth import hash_password
-import uuid
+
 
 def upgrade() -> None:
     """Upgrade schema."""

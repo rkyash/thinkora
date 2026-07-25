@@ -195,7 +195,7 @@ async def stream_ask(
                 elif data.get("type") == "error":
                     yield f"event: error\ndata: {json.dumps(data['data'])}\n\n"
 
-            yield f"event: done\ndata: [DONE]\n\n"
+            yield "event: done\ndata: [DONE]\n\n"
         except Exception as e:
             yield f"event: error\ndata: {json.dumps(str(e))}\n\n"
         finally:

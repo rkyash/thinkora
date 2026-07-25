@@ -1,4 +1,5 @@
-from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple
+from collections.abc import AsyncGenerator
+from typing import Any, Dict, List, Optional, Tuple
 
 import litellm
 
@@ -38,7 +39,7 @@ class LLMService:
                 return value
         return settings.DEFAULT_MODEL
 
-    def _inject_kwargs_for_model(self, model: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    def _inject_kwargs_for_model(self, model: str, kwargs: dict[str, Any]) -> dict[str, Any]:
         """
         Parse provider from model prefix, read keys/URLs from settings,
         and inject them explicitly so LiteLLM doesn't rely on os.environ.
@@ -75,8 +76,8 @@ class LLMService:
 
     async def get_chat_completion(
         self,
-        messages: List[Dict[str, str]],
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        model: str | None = None,
         temperature: float = 0.7,
         **kwargs: Any,
     ) -> str:
@@ -100,8 +101,8 @@ class LLMService:
 
     async def get_chat_stream(
         self,
-        messages: List[Dict[str, str]],
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        model: str | None = None,
         temperature: float = 0.7,
         **kwargs: Any,
     ) -> AsyncGenerator[str, None]:
@@ -137,8 +138,8 @@ class LLMService:
                 yield delta.content
 
     async def get_embedding(
-        self, text: str, model: Optional[str] = None, **kwargs: Any
-    ) -> List[float]:
+        self, text: str, model: str | None = None, **kwargs: Any
+    ) -> list[float]:
         """
         Get the embedding vector for a piece of text.
         """
