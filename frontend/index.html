@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Thinkora — AI-powered knowledge management and learning platform"
+    />
+    <title>Thinkora</title>
+    <script>
+      // Prevent FOUC: apply persisted theme before React hydrates
+      try {
+        var s = JSON.parse(localStorage.getItem("thinkora-settings") || "{}");
+        var t = (s && s.state && s.state.theme) || "dark";
+        if (t === "system") {
+          document.documentElement.classList.toggle(
+            "dark",
+            window.matchMedia("(prefers-color-scheme: dark)").matches,
+          );
+        } else {
+          document.documentElement.classList.toggle("dark", t === "dark");
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

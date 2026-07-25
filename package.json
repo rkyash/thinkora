@@ -1,0 +1,11 @@
+{
+  "name": "thinkora",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Thinkora — AI-powered document learning platform",
+  "scripts": {
+    "start": "./start.sh",
+    "stop": "docker compose -f docker-compose.dev.yml down",
+    "status": "docker compose -f docker-compose.dev.yml ps"
+  }
+}
