@@ -150,7 +150,9 @@ async def register_user(db: AsyncSession, data: UserCreate) -> tuple[dict[str, A
     }, tokens
 
 
-async def login_user(db: AsyncSession, email: str, password: str) -> tuple[dict[str, Any], TokenResponse]:
+async def login_user(
+    db: AsyncSession, email: str, password: str
+) -> tuple[dict[str, Any], TokenResponse]:
     """Authenticate user and return tokens."""
     user = await user_repo.get_by_email_or_username(db, email)
     if not user or not verify_password(password, user.hashed_password):

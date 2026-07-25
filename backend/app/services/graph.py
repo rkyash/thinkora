@@ -135,7 +135,9 @@ class GraphService:
 
         return {"nodes": nodes, "edges": edges}
 
-    async def refresh_graph(self, notebook_id: str, model: str | None = None) -> dict[str, list[Any]]:
+    async def refresh_graph(
+        self, notebook_id: str, model: str | None = None
+    ) -> dict[str, list[Any]]:
         """
         Regenerate the knowledge graph for a notebook:
           1. Collect all chunk text.
